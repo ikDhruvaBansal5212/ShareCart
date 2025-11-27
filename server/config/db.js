@@ -9,8 +9,10 @@ const connectDB = async () => {
 
     console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
-    console.error(`Error: ${error.message}`);
-    process.exit(1);
+    console.error(`❌ MongoDB Connection Error: ${error.message}`);
+    console.error(`⚠️  Server will continue running but database features won't work`);
+    console.error(`💡 To fix: Start MongoDB locally or use MongoDB Atlas`);
+    // Don't exit - allow server to run without DB for testing
   }
 };
 
