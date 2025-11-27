@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart Details - ShareCart</title>
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="../js/cart-sharing.js"></script>
+    <style>
+        .cart-detail-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .cart-detail-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .detail-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 24px;
+        }
+
+        .creator-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding: 16px;
+            background: var(--light);
+            border-radius: 8px;
+        }
+
+        .creator-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+        }
+
+        .creator-details h3 {
+            margin: 0 0 4px 0;
+        }
+
+        .rating-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #fbbf24;
+        }
+
+        .members-section {
+            margin-top: 24px;
+        }
+
+        .member-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background: var(--light);
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .member-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .member-avatar-small {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .chat-preview {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .message {
+            margin-bottom: 16px;
+        }
+
+        .message-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .message-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+        }
+
+        .message-sender {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .message-time {
+            font-size: 12px;
+            color: var(--gray);
+        }
+
+        .message-content {
+            padding-left: 32px;
+            font-size: 14px;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .sidebar-card {
+            position: sticky;
+            top: 80px;
+        }
+
+        .payment-breakdown {
+            margin-top: 16px;
+            padding: 16px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border-radius: 8px;
+        }
+
+        .breakdown-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .breakdown-row:last-child {
+            border-bottom: none;
+            font-weight: 600;
+            font-size: 18px;
+            padding-top: 12px;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 16px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="dashboard.html" class="logo">
+                <i class="fas fa-shopping-cart"></i> ShareCart
+            </a>
+            <ul class="nav-links">
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="browse-carts.html">Browse Carts</a></li>
+                <li><a href="my-carts.html">My Carts</a></li>
+                <li><a href="orders.html">Orders</a></li>
+                <li><a href="profile.html">Profile</a></li>
+            </ul>
+            <div class="user-menu">
+                <span id="userName">User</span>
+                <img src="https://ui-avatars.com/api/?name=User&background=random" alt="Avatar" class="avatar" id="userAvatar">
+                <button class="btn btn-outline" onclick="api.logout()">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <button class="btn btn-outline mb-3" onclick="history.back()">
+            <i class="fas fa-arrow-left"></i> Back
+        </button>
+
+        <div id="cartDetailsContainer">
+            <div class="loading">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script>
+        if (!requireAuth()) window.location.href = 'login.html';
+
+        const user = api.getUser();
+        if (user) {
+            document.getElementById('userName').textContent = user.name;
+            document.getElementById('userAvatar').src = user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`;
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const cartId = urlParams.get('id');
+
+        if (!cartId) {
+            showToast('Cart ID not provided', 'error');
+            window.location.href = 'my-carts.html';
+        }
+
+        let cart = null;
+        let messages = [];
+
+        async function loadCartDetails() {
+            try {
+                const response = await api.getCart(cartId);
+                cart = response.data;
+                renderCartDetails();
+                loadMessages();
+            } catch (error) {
+                console.error('Error loading cart:', error);
+                showToast(error.message, 'error');
+            }
+        }
+
+        function renderCartDetails() {
+            const splitAmount = cart.deliveryCharge / cart.maxMembers;
+            const savings = cart.deliveryCharge - splitAmount;
+            const isCreator = cart.createdBy._id === user._id;
+            const isMember = cart.members.some(m => m._id === user._id);
+
+            document.getElementById('cartDetailsContainer').innerHTML = `
+                <div class="cart-detail-container">
+                    <!-- Main Content -->
+                    <div>
+                        <div class="detail-card">
+                            <div class="detail-header">
+                                <div>
+                                    <h1>Cart Details</h1>
+                                    <span class="platform-badge platform-${cart.platform}">${cart.platform}</span>
+                                    <span class="badge badge-${cart.status === 'active' ? 'success' : cart.status === 'full' ? 'warning' : 'primary'} ml-2">
+                                        ${cart.status}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Creator Info -->
+                            <div class="creator-info">
+                                <img src="${cart.createdBy.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(cart.createdBy.name)}&background=random`}" 
+                                     alt="${cart.createdBy.name}" class="creator-avatar">
+                                <div class="creator-details">
+                                    <h3>${cart.createdBy.name} ${isCreator ? '(You)' : ''}</h3>
+                                    <div class="rating-display">
+                                        <i class="fas fa-star"></i>
+                                        <span>${cart.createdBy.rating ? cart.createdBy.rating.toFixed(1) : 'New'}</span>
+                                    </div>
+                                    <small class="info-label">${cart.location.city}</small>
+                                </div>
+                            </div>
+
+                            <!-- Cart Info -->
+                            <div class="card-body">
+                                <div class="info-row">
+                                    <span class="info-label"><i class="fas fa-map-marker-alt"></i> Location</span>
+                                    <span class="info-value">${cart.location.address || cart.location.city}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label"><i class="fas fa-users"></i> Members</span>
+                                    <span class="info-value">${cart.members.length}/${cart.maxMembers}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label"><i class="fas fa-clock"></i> Created</span>
+                                    <span class="info-value">${formatDate(cart.createdAt)}</span>
+                                </div>
+                                ${cart.notes ? `
+                                    <div class="info-row">
+                                        <span class="info-label"><i class="fas fa-sticky-note"></i> Notes</span>
+                                        <span class="info-value">${cart.notes}</span>
+                                    </div>
+                                ` : ''}
+                            </div>
+
+                            <!-- Members Section -->
+                            <div class="members-section">
+                                <h3>Members</h3>
+                                ${cart.members.map(member => `
+                                    <div class="member-card">
+                                        <div class="member-info">
+                                            <img src="${member.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=random`}" 
+                                                 alt="${member.name}" class="member-avatar-small">
+                                            <div>
+                                                <strong>${member.name}</strong>
+                                                ${member._id === cart.createdBy._id ? '<span class="badge badge-primary ml-2">Creator</span>' : ''}
+                                                ${member._id === user._id ? '<span class="badge badge-success ml-2">You</span>' : ''}
+                                                <br>
+                                                <small class="info-label">${member.phone}</small>
+                                            </div>
+                                        </div>
+                                        <div class="rating-display">
+                                            <i class="fas fa-star"></i>
+                                            <span>${member.rating ? member.rating.toFixed(1) : 'New'}</span>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+
+                            <!-- Chat Section -->
+                            <div class="members-section">
+                                <h3>Cart Chat</h3>
+                                <div class="chat-preview" id="chatMessages">
+                                    <div class="loading">
+                                        <div class="spinner"></div>
+                                    </div>
+                                </div>
+                                ${isMember ? `
+                                    <div class="chat-input">
+                                        <input type="text" id="messageInput" class="form-control" placeholder="Type a message...">
+                                        <button class="btn btn-primary" onclick="sendMessage()">
+                                            <i class="fas fa-paper-plane"></i>
+                                        </button>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar -->
+                    <div>
+                        <div class="detail-card sidebar-card">
+                            <h3>Payment Breakdown</h3>
+                            <div class="payment-breakdown">
+                                <div class="breakdown-row">
+                                    <span>Delivery Charge</span>
+                                    <span>${formatCurrency(cart.deliveryCharge)}</span>
+                                </div>
+                                <div class="breakdown-row">
+                                    <span>Members</span>
+                                    <span>${cart.members.length}</span>
+                                </div>
+                                <div class="breakdown-row">
+                                    <span>Your Split</span>
+                                    <span>${formatCurrency(splitAmount)}</span>
+                                </div>
+                                <div class="breakdown-row">
+                                    <span>💰 You Save</span>
+                                    <span>${formatCurrency(savings)}</span>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="action-buttons">
+                                ${!isMember && cart.status === 'active' ? `
+                                    <button class="btn btn-primary btn-full" onclick="joinCart()">
+                                        <i class="fas fa-user-plus"></i> Join Cart
+                                    </button>
+                                ` : ''}
+                                
+                                ${isMember || isCreator ? `
+                                    <button class="btn btn-success btn-full" onclick="shareCart()">
+                                        <i class="fas fa-share-nodes"></i> Share Cart
+                                    </button>
+                                ` : ''}
+
+                                ${isMember && !isCreator && cart.status !== 'delivered' ? `
+                                    <button class="btn btn-danger btn-full" onclick="leaveCart()">
+                                        <i class="fas fa-sign-out-alt"></i> Leave Cart
+                                    </button>
+                                ` : ''}
+
+                                ${isCreator && cart.status === 'active' ? `
+                                    <button class="btn btn-danger btn-full" onclick="deleteCart()">
+                                        <i class="fas fa-trash"></i> Delete Cart
+                                    </button>
+                                ` : ''}
+
+                                ${isMember && cart.order && cart.order.paymentStatus !== 'completed' ? `
+                                    <button class="btn btn-primary btn-full" onclick="payNow()">
+                                        <i class="fas fa-credit-card"></i> Pay ${formatCurrency(splitAmount)}
+                                    </button>
+                                ` : ''}
+
+                                ${cart.status === 'delivered' && isMember ? `
+                                    <button class="btn btn-secondary btn-full" onclick="writeReview()">
+                                        <i class="fas fa-star"></i> Write Review
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function loadMessages() {
+            try {
+                const response = await api.getMessages(cartId);
+                messages = response.data;
+                renderMessages();
+            } catch (error) {
+                console.error('Error loading messages:', error);
+                document.getElementById('chatMessages').innerHTML = '<p class="text-center">Unable to load messages</p>';
+            }
+        }
+
+        function renderMessages() {
+            const container = document.getElementById('chatMessages');
+            
+            if (messages.length === 0) {
+                container.innerHTML = '<p class="text-center info-label">No messages yet. Start the conversation!</p>';
+                return;
+            }
+
+            container.innerHTML = messages.map(msg => `
+                <div class="message">
+                    <div class="message-header">
+                        <img src="${msg.sender.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(msg.sender.name)}&background=random`}" 
+                             alt="${msg.sender.name}" class="message-avatar">
+                        <span class="message-sender">${msg.sender.name}</span>
+                        <span class="message-time">${formatDate(msg.createdAt)}</span>
+                    </div>
+                    <div class="message-content">${msg.content}</div>
+                </div>
+            `).join('');
+
+            // Scroll to bottom
+            container.scrollTop = container.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const content = input.value.trim();
+
+            if (!content) return;
+
+            try {
+                await api.sendMessage(cartId, { content });
+                input.value = '';
+                loadMessages();
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        }
+
+        // Enter key to send message
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const input = document.getElementById('messageInput');
+                if (input) {
+                    input.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            sendMessage();
+                        }
+                    });
+                }
+            }, 1000);
+        });
+
+        async function joinCart() {
+            if (!confirm('Join this cart?')) return;
+
+            try {
+                await api.joinCart(cartId);
+                showToast('Joined cart successfully!', 'success');
+                loadCartDetails();
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        }
+
+        async function leaveCart() {
+            if (!confirm('Leave this cart?')) return;
+
+            try {
+                await api.leaveCart(cartId);
+                showToast('Left cart successfully', 'success');
+                window.location.href = 'my-carts.html';
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        }
+
+        async function deleteCart() {
+            if (!confirm('Delete this cart? All members will be notified.')) return;
+
+            try {
+                await api.deleteCart(cartId);
+                showToast('Cart deleted successfully', 'success');
+                window.location.href = 'my-carts.html';
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        }
+
+        function payNow() {
+            showToast('Redirecting to payment...', 'info');
+            window.location.href = `orders.html?payment=${cart.order._id}`;
+        }
+
+        function writeReview() {
+            window.location.href = `profile.html?review=${cart.createdBy._id}`;
+        }
+
+        function shareCart() {
+            // Create a simple share prompt
+            const shareLink = cartSharing.generateShareLink(cartId);
+            
+            // Try native share first
+            if (navigator.share) {
+                navigator.share({
+                    title: `Join my ${cart.platform} cart`,
+                    text: `Save money by splitting ₹${cart.deliveryCharge} delivery charge. Only ₹${cart.deliveryCharge / cart.maxMembers} per person!`,
+                    url: shareLink
+                }).catch(err => {
+                    // If native share fails, show custom options
+                    showShareOptions();
+                });
+            } else {
+                showShareOptions();
+            }
+        }
+
+        function showShareOptions() {
+            const shareLink = cartSharing.generateShareLink(cartId);
+            const message = `🛒 Join my ${cart.platform} cart!\n💰 Split: ₹${cart.deliveryCharge / cart.maxMembers}\n📍 ${cart.location.city}\n\nJoin: ${shareLink}`;
+            
+            const options = [
+                { name: 'WhatsApp', action: () => cartSharing.shareViaWhatsApp(cart) },
+                { name: 'Copy Link', action: async () => {
+                    await cartSharing.copyLink(cartId);
+                    showToast('Link copied!', 'success');
+                }},
+                { name: 'Email', action: () => cartSharing.shareViaEmail(cart) },
+                { name: 'SMS', action: () => cartSharing.shareViaSMS(cart) }
+            ];
+
+            // Create a simple modal with options
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:10000;';
+            
+            const content = document.createElement('div');
+            content.style.cssText = 'background:white;padding:32px;border-radius:16px;max-width:400px;width:90%;';
+            
+            content.innerHTML = `
+                <h3 style="margin:0 0 16px 0;">Share Cart</h3>
+                <div style="background:#f3f4f6;padding:12px;border-radius:8px;margin-bottom:16px;word-break:break-all;font-size:14px;">${shareLink}</div>
+                <div style="display:grid;gap:12px;">
+                    ${options.map((opt, i) => `<button class="btn btn-outline" onclick="shareOptions[${i}].action()">${opt.name}</button>`).join('')}
+                    <button class="btn btn-primary" onclick="this.closest('[style*=fixed]').remove()">Close</button>
+                </div>
+            `;
+            
+            modal.appendChild(content);
+            document.body.appendChild(modal);
+            window.shareOptions = options;
+            
+            modal.onclick = (e) => {
+                if (e.target === modal) modal.remove();
+            };
+        }
+
+        // Load cart details on page load
+        loadCartDetails();
+    </script>
+</body>
+</html>

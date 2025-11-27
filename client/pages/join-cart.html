@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join Cart - ShareCart</title>
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .join-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .join-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 36px;
+            color: white;
+        }
+
+        .join-container h1 {
+            margin: 0 0 8px 0;
+            color: var(--dark);
+            font-size: 28px;
+        }
+
+        .join-container > p {
+            color: var(--gray);
+            margin: 0 0 32px 0;
+        }
+
+        .cart-preview {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+            text-align: left;
+        }
+
+        .cart-preview-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .platform-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+
+        .platform-info h3 {
+            margin: 0 0 4px 0;
+            color: var(--dark);
+            font-size: 18px;
+        }
+
+        .platform-info p {
+            margin: 0;
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        .cart-details {
+            display: grid;
+            gap: 12px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .detail-label {
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 16px;
+        }
+
+        .savings-box {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 16px;
+            border-radius: 12px;
+            margin: 24px 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c00;
+            padding: 16px;
+            border-radius: 12px;
+            margin: 24px 0;
+        }
+
+        .loading-state {
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="join-container">
+        <div id="loadingState" class="loading-state">
+            <div class="spinner"></div>
+            <p>Loading cart details...</p>
+        </div>
+
+        <div id="cartContent" style="display: none;">
+            <div class="join-icon">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+            
+            <h1>Join Cart</h1>
+            <p>You've been invited to join a cart!</p>
+
+            <div class="cart-preview">
+                <div class="cart-preview-header">
+                    <div class="platform-icon">
+                        <i class="fas fa-shopping-bag"></i>
+                    </div>
+                    <div class="platform-info">
+                        <h3 id="cartPlatform">Blinkit</h3>
+                        <p id="cartLocation">Mumbai, Maharashtra</p>
+                    </div>
+                </div>
+
+                <div class="cart-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Delivery Charge</span>
+                        <span class="detail-value" id="deliveryCharge">₹40</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Your Split</span>
+                        <span class="detail-value" id="splitAmount">₹20</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Members</span>
+                        <span class="detail-value" id="memberCount">1/2</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Distance</span>
+                        <span class="detail-value" id="distance">0.5 km away</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="savings-box">
+                💰 Save <span id="savings">₹20</span> by joining!
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-outline" style="flex: 1;" onclick="goHome()">
+                    Cancel
+                </button>
+                <button class="btn btn-primary" style="flex: 2;" onclick="confirmJoin()">
+                    <i class="fas fa-user-plus"></i> Join Now
+                </button>
+            </div>
+        </div>
+
+        <div id="errorState" style="display: none;">
+            <div class="join-icon" style="background: #ef4444;">
+                <i class="fas fa-exclamation-circle"></i>
+            </div>
+            
+            <h1>Oops!</h1>
+            <div class="error-message" id="errorMessage">
+                Something went wrong
+            </div>
+
+            <button class="btn btn-primary btn-full" onclick="goHome()">
+                Go to Home
+            </button>
+        </div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/cart-sharing.js"></script>
+    <script>
+        let cartId = null;
+        let cartData = null;
+
+        async function init() {
+            // Get cart ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            cartId = urlParams.get('id');
+
+            if (!cartId) {
+                showError('Invalid cart link');
+                return;
+            }
+
+            try {
+                // Fetch cart details
+                const response = await api.getCart(cartId);
+                cartData = response.data;
+
+                // Check if cart is available
+                if (cartData.status !== 'active') {
+                    showError(`This cart is ${cartData.status} and not accepting new members`);
+                    return;
+                }
+
+                // Check if cart is full
+                if (cartData.members.length >= cartData.maxMembers) {
+                    showError('This cart is full');
+                    return;
+                }
+
+                // Display cart details
+                displayCart(cartData);
+
+            } catch (error) {
+                console.error('Error loading cart:', error);
+                showError(error.message || 'Failed to load cart details');
+            }
+        }
+
+        function displayCart(cart) {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('cartContent').style.display = 'block';
+
+            const splitAmount = cart.deliveryCharge / cart.maxMembers;
+            const savings = cart.deliveryCharge - splitAmount;
+
+            document.getElementById('cartPlatform').textContent = cart.platform;
+            document.getElementById('cartLocation').textContent = `${cart.location.city}, ${cart.location.state || ''}`;
+            document.getElementById('deliveryCharge').textContent = formatCurrency(cart.deliveryCharge);
+            document.getElementById('splitAmount').textContent = formatCurrency(splitAmount);
+            document.getElementById('memberCount').textContent = `${cart.members.length}/${cart.maxMembers}`;
+            document.getElementById('savings').textContent = formatCurrency(savings);
+
+            if (cart.distance) {
+                document.getElementById('distance').textContent = `${cart.distance} km away`;
+            } else {
+                document.getElementById('distance').textContent = 'Location unknown';
+            }
+        }
+
+        function showError(message) {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorState').style.display = 'block';
+            document.getElementById('errorMessage').textContent = message;
+        }
+
+        async function confirmJoin() {
+            // Check if user is logged in
+            const token = localStorage.getItem('token');
+            if (!token) {
+                // Redirect to login with return URL
+                localStorage.setItem('returnUrl', window.location.href);
+                window.location.href = '../index.html';
+                return;
+            }
+
+            try {
+                const response = await api.joinCart(cartId);
+                if (response.success) {
+                    // Show success message
+                    alert('Successfully joined cart!');
+                    window.location.href = `cart-details.html?id=${cartId}`;
+                }
+            } catch (error) {
+                alert(error.message || 'Failed to join cart');
+            }
+        }
+
+        function goHome() {
+            window.location.href = '../index.html';
+        }
+
+        // Initialize on page load
+        init();
+    </script>
+</body>
+</html>

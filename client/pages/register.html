@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - ShareCart</title>
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .auth-card {
+            background: white;
+            border-radius: 16px;
+            padding: 48px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .auth-header h1 {
+            font-size: 32px;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+
+        .auth-header p {
+            color: var(--gray);
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 24px;
+            color: var(--gray);
+        }
+
+        .auth-footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        .location-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1><i class="fas fa-shopping-cart"></i> ShareCart</h1>
+                <p>Create your account</p>
+            </div>
+
+            <div id="errorMessage" class="error-message"></div>
+
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" class="form-control" placeholder="John Doe" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" class="form-control" placeholder="john@example.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" class="form-control" placeholder="9876543210" pattern="[6-9][0-9]{9}" required>
+                    <small style="color: var(--gray);">Enter 10-digit Indian mobile number</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" class="form-control" placeholder="Min 6 characters" minlength="6" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="address">Address</label>
+                    <input type="text" id="address" class="form-control" placeholder="123 Main St, Mumbai" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="city">City</label>
+                    <input type="text" id="city" class="form-control" placeholder="Mumbai" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="pincode">Pincode</label>
+                    <input type="text" id="pincode" class="form-control" placeholder="400001" pattern="[0-9]{6}" required>
+                </div>
+
+                <input type="hidden" id="latitude" value="19.0760">
+                <input type="hidden" id="longitude" value="72.8777">
+
+                <button type="button" class="btn btn-outline btn-full location-btn" id="getLocationBtn">
+                    <i class="fas fa-map-marker-alt"></i> Use My Current Location
+                </button>
+
+                <button type="submit" class="btn btn-primary btn-full mt-2" id="registerBtn">
+                    <span id="registerText">Create Account</span>
+                    <span id="registerSpinner" style="display: none;"><i class="fas fa-spinner fa-spin"></i> Creating...</span>
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                Already have an account? <a href="login.html">Login</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script>
+        // Redirect if already logged in
+        if (api.getToken()) {
+            window.location.href = 'dashboard.html';
+        }
+
+        const registerForm = document.getElementById('registerForm');
+        const errorMessage = document.getElementById('errorMessage');
+        const registerBtn = document.getElementById('registerBtn');
+        const registerText = document.getElementById('registerText');
+        const registerSpinner = document.getElementById('registerSpinner');
+        const getLocationBtn = document.getElementById('getLocationBtn');
+
+        // Get current location
+        getLocationBtn.addEventListener('click', async () => {
+            getLocationBtn.disabled = true;
+            getLocationBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting location...';
+
+            try {
+                const location = await getUserLocation();
+                document.getElementById('latitude').value = location.coordinates[1];
+                document.getElementById('longitude').value = location.coordinates[0];
+                
+                showToast('Location captured successfully!', 'success');
+                getLocationBtn.innerHTML = '<i class="fas fa-check"></i> Location Captured';
+                getLocationBtn.classList.remove('btn-outline');
+                getLocationBtn.classList.add('btn-secondary');
+            } catch (error) {
+                showToast('Could not get location. Please enter manually.', 'error');
+                getLocationBtn.disabled = false;
+                getLocationBtn.innerHTML = '<i class="fas fa-map-marker-alt"></i> Use My Current Location';
+            }
+        });
+
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const userData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                password: document.getElementById('password').value,
+                location: {
+                    coordinates: [
+                        parseFloat(document.getElementById('longitude').value),
+                        parseFloat(document.getElementById('latitude').value)
+                    ],
+                    address: document.getElementById('address').value,
+                    city: document.getElementById('city').value,
+                    pincode: document.getElementById('pincode').value
+                }
+            };
+
+            // Disable button and show spinner
+            registerBtn.disabled = true;
+            registerText.style.display = 'none';
+            registerSpinner.style.display = 'inline';
+            errorMessage.style.display = 'none';
+
+            try {
+                const response = await api.register(userData);
+                
+                if (response.success) {
+                    showToast('Account created successfully! Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1000);
+                }
+            } catch (error) {
+                errorMessage.textContent = error.message || 'Registration failed. Please try again.';
+                errorMessage.style.display = 'block';
+                
+                // Re-enable button
+                registerBtn.disabled = false;
+                registerText.style.display = 'inline';
+                registerSpinner.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

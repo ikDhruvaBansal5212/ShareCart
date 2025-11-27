@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders - ShareCart</title>
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .order-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .order-number {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .order-date {
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        .order-body {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 16px 0;
+        }
+
+        .order-info-item {
+            padding: 12px;
+            background: var(--light);
+            border-radius: 8px;
+        }
+
+        .order-info-item .label {
+            font-size: 12px;
+            color: var(--gray);
+            margin-bottom: 4px;
+        }
+
+        .order-info-item .value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .members-info {
+            margin-top: 16px;
+            padding: 16px;
+            background: var(--light);
+            border-radius: 8px;
+        }
+
+        .member-payment {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .member-payment:last-child {
+            border-bottom: none;
+        }
+
+        .payment-summary {
+            margin-top: 16px;
+            padding: 16px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            border-radius: 8px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+        }
+
+        .summary-row.total {
+            border-top: 2px solid rgba(255,255,255,0.3);
+            margin-top: 8px;
+            padding-top: 12px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .order-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="dashboard.html" class="logo">
+                <i class="fas fa-shopping-cart"></i> ShareCart
+            </a>
+            <ul class="nav-links">
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="browse-carts.html">Browse Carts</a></li>
+                <li><a href="my-carts.html">My Carts</a></li>
+                <li><a href="orders.html" class="active">Orders</a></li>
+                <li><a href="profile.html">Profile</a></li>
+            </ul>
+            <div class="user-menu">
+                <span id="userName">User</span>
+                <img src="https://ui-avatars.com/api/?name=User&background=random" alt="Avatar" class="avatar" id="userAvatar">
+                <button class="btn btn-outline" onclick="api.logout()">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>My Orders</h1>
+            <p>View your order history and payment details</p>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+            <div class="filter-row">
+                <div class="form-group">
+                    <label for="statusFilter">Status</label>
+                    <select id="statusFilter" class="form-control" onchange="loadOrders()">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="completed">Completed</option>
+                        <option value="failed">Failed</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="platformFilter">Platform</label>
+                    <select id="platformFilter" class="form-control" onchange="loadOrders()">
+                        <option value="">All Platforms</option>
+                        <option value="blinkit">Blinkit</option>
+                        <option value="zepto">Zepto</option>
+                        <option value="swiggy">Swiggy Instamart</option>
+                        <option value="bigbasket">BigBasket</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Container -->
+        <div id="ordersContainer">
+            <div class="loading">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script>
+        if (!requireAuth()) window.location.href = 'login.html';
+
+        const user = api.getUser();
+        if (user) {
+            document.getElementById('userName').textContent = user.name;
+            document.getElementById('userAvatar').src = user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`;
+        }
+
+        async function loadOrders() {
+            try {
+                const response = await api.getMyOrders();
+                let orders = response.data;
+
+                // Apply filters
+                const statusFilter = document.getElementById('statusFilter').value;
+                const platformFilter = document.getElementById('platformFilter').value;
+
+                if (statusFilter) {
+                    orders = orders.filter(o => o.paymentStatus === statusFilter);
+                }
+                if (platformFilter) {
+                    orders = orders.filter(o => o.cart && o.cart.platform === platformFilter);
+                }
+
+                renderOrders(orders);
+            } catch (error) {
+                console.error('Error loading orders:', error);
+                showToast(error.message, 'error');
+            }
+        }
+
+        function renderOrders(orders) {
+            const container = document.getElementById('ordersContainer');
+
+            if (orders.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-receipt"></i>
+                        <h3>No orders found</h3>
+                        <p>Your order history will appear here</p>
+                        <a href="browse-carts.html" class="btn btn-primary">Browse Carts</a>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = orders.map(order => {
+                const cart = order.cart;
+                const splitAmount = cart ? cart.deliveryCharge / cart.maxMembers : 0;
+                const userPayment = order.paymentDetails?.find(p => p.user === user._id);
+                const paidCount = order.paymentDetails?.filter(p => p.status === 'completed').length || 0;
+
+                return `
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div>
+                                <div class="order-number">
+                                    <i class="fas fa-hashtag"></i> ${order.orderNumber}
+                                </div>
+                                <div class="order-date">
+                                    <i class="fas fa-calendar"></i> ${formatDate(order.createdAt)}
+                                </div>
+                            </div>
+                            <div>
+                                ${cart ? `<span class="platform-badge platform-${cart.platform}">${cart.platform}</span>` : ''}
+                                <span class="badge badge-${order.paymentStatus === 'completed' ? 'success' : order.paymentStatus === 'failed' ? 'danger' : 'warning'} ml-2">
+                                    ${order.paymentStatus}
+                                </span>
+                            </div>
+                        </div>
+
+                        ${cart ? `
+                            <div class="order-body">
+                                <div class="order-info-item">
+                                    <div class="label">Delivery Charge</div>
+                                    <div class="value">${formatCurrency(cart.deliveryCharge)}</div>
+                                </div>
+                                <div class="order-info-item">
+                                    <div class="label">Your Split</div>
+                                    <div class="value">${formatCurrency(splitAmount)}</div>
+                                </div>
+                                <div class="order-info-item">
+                                    <div class="label">Members</div>
+                                    <div class="value">${cart.members.length}/${cart.maxMembers}</div>
+                                </div>
+                                <div class="order-info-item">
+                                    <div class="label">Location</div>
+                                    <div class="value">${cart.location.city}</div>
+                                </div>
+                            </div>
+
+                            <!-- Members Payment Status -->
+                            <div class="members-info">
+                                <h4>Payment Status</h4>
+                                ${order.paymentDetails ? order.paymentDetails.map(payment => `
+                                    <div class="member-payment">
+                                        <span>
+                                            ${payment.userName || 'Member'}
+                                            ${payment.user === user._id ? '<span class="badge badge-primary ml-2">You</span>' : ''}
+                                        </span>
+                                        <span class="badge badge-${payment.status === 'completed' ? 'success' : payment.status === 'failed' ? 'danger' : 'warning'}">
+                                            ${payment.status}
+                                        </span>
+                                    </div>
+                                `).join('') : '<p class="text-center">No payment details</p>'}
+                            </div>
+
+                            <!-- Payment Summary -->
+                            <div class="payment-summary">
+                                <div class="summary-row">
+                                    <span>Payments Received</span>
+                                    <span>${paidCount}/${order.paymentDetails?.length || 0}</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Total Amount</span>
+                                    <span>${formatCurrency(order.totalAmount)}</span>
+                                </div>
+                                <div class="summary-row total">
+                                    <span>Your Amount</span>
+                                    <span>${formatCurrency(splitAmount)}</span>
+                                </div>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="order-actions">
+                                ${userPayment && userPayment.status !== 'completed' ? `
+                                    <button class="btn btn-primary" onclick="payNow('${order._id}', ${splitAmount})">
+                                        <i class="fas fa-credit-card"></i> Pay Now
+                                    </button>
+                                ` : ''}
+                                <button class="btn btn-secondary" onclick="viewCart('${cart._id}')">
+                                    <i class="fas fa-eye"></i> View Cart
+                                </button>
+                                ${order.paymentStatus === 'completed' && cart.status === 'delivered' ? `
+                                    <button class="btn btn-outline" onclick="writeReview('${cart.createdBy._id}')">
+                                        <i class="fas fa-star"></i> Write Review
+                                    </button>
+                                ` : ''}
+                            </div>
+                        ` : '<p>Cart information unavailable</p>'}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function viewCart(cartId) {
+            window.location.href = `cart-details.html?id=${cartId}`;
+        }
+
+        async function payNow(orderId, amount) {
+            try {
+                showToast('Initiating payment...', 'info');
+                
+                // Create payment order
+                const orderResponse = await api.createPaymentOrder(orderId);
+                
+                if (orderResponse.success) {
+                    const options = {
+                        key: 'YOUR_RAZORPAY_KEY', // This should come from backend
+                        amount: amount * 100, // Convert to paise
+                        currency: 'INR',
+                        name: 'ShareCart',
+                        description: `Order Payment - ${orderId}`,
+                        order_id: orderResponse.data.razorpayOrderId,
+                        handler: async function (response) {
+                            try {
+                                // Verify payment
+                                const verifyResponse = await api.verifyPayment({
+                                    orderId: orderId,
+                                    razorpayOrderId: response.razorpay_order_id,
+                                    razorpayPaymentId: response.razorpay_payment_id,
+                                    razorpaySignature: response.razorpay_signature
+                                });
+
+                                if (verifyResponse.success) {
+                                    showToast('Payment successful!', 'success');
+                                    loadOrders();
+                                }
+                            } catch (error) {
+                                showToast('Payment verification failed', 'error');
+                            }
+                        },
+                        prefill: {
+                            name: user.name,
+                            email: user.email,
+                            contact: user.phone
+                        },
+                        theme: {
+                            color: '#6366f1'
+                        }
+                    };
+
+                    // Note: In production, you need to include Razorpay SDK
+                    // <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+                    if (typeof Razorpay !== 'undefined') {
+                        const rzp = new Razorpay(options);
+                        rzp.open();
+                    } else {
+                        showToast('Payment gateway not loaded. Please refresh the page.', 'error');
+                    }
+                }
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        }
+
+        function writeReview(userId) {
+            window.location.href = `profile.html?review=${userId}`;
+        }
+
+        // Load orders on page load
+        loadOrders();
+    </script>
+</body>
+</html>

@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shared Carts - ShareCart</title>
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="../js/cart-sharing.js"></script>
+    <style>
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            align-items: end;
+        }
+
+        .cart-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+        }
+
+        .cart-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+
+        .cart-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 16px;
+        }
+
+        .platform-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .distance-badge {
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .cart-info {
+            margin: 16px 0;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .members-progress {
+            margin: 16px 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            transition: width 0.3s;
+        }
+
+        .savings-highlight {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 16px 0;
+            font-weight: 600;
+        }
+
+        .cart-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .btn-share {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            flex: 1;
+        }
+
+        .btn-share:hover {
+            background: #059669;
+            transform: scale(1.02);
+        }
+
+        /* Share Modal Styles */
+        .share-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 10000;
+            animation: fadeIn 0.3s;
+        }
+
+        .share-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .share-modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            animation: slideUp 0.3s;
+        }
+
+        .share-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .share-header h2 {
+            margin: 0 0 8px 0;
+            color: var(--dark);
+        }
+
+        .share-header p {
+            color: var(--gray);
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .share-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 12px;
+            margin: 24px 0;
+        }
+
+        .share-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 16px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .share-option:hover {
+            border-color: var(--primary);
+            background: #f0f9ff;
+            transform: translateY(-2px);
+        }
+
+        .share-option i {
+            font-size: 28px;
+        }
+
+        .share-option.whatsapp i { color: #25D366; }
+        .share-option.facebook i { color: #1877F2; }
+        .share-option.twitter i { color: #1DA1F2; }
+        .share-option.email i { color: #EA4335; }
+        .share-option.sms i { color: #34B7F1; }
+        .share-option.copy i { color: #6366f1; }
+
+        .share-option span {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .share-link {
+            background: #f3f4f6;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 16px 0;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .share-link input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--dark);
+            font-size: 14px;
+            outline: none;
+        }
+
+        .qr-code {
+            text-align: center;
+            margin: 24px 0;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 12px;
+        }
+
+        .qr-code h4 {
+            margin: 0 0 16px 0;
+            color: var(--dark);
+        }
+
+        .qr-code img {
+            max-width: 250px;
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .platform-link {
+            display: block;
+            text-align: center;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            margin: 16px 0;
+            transition: all 0.3s;
+        }
+
+        .platform-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.4);
+        }
+
+        .platform-link i {
+            margin-right: 8px;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            animation: fadeIn 0.3s;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-header h2 {
+            font-size: 24px;
+            color: var(--dark);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--gray);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="dashboard.html" class="logo">
+                <i class="fas fa-shopping-cart"></i> ShareCart
+            </a>
+            <ul class="nav-links">
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="browse-carts.html" class="active">Browse Carts</a></li>
+                <li><a href="my-carts.html">My Carts</a></li>
+                <li><a href="orders.html">Orders</a></li>
+                <li><a href="profile.html">Profile</a></li>
+            </ul>
+            <div class="user-menu">
+                <span id="userName">User</span>
+                <img src="https://ui-avatars.com/api/?name=User&background=random" alt="Avatar" class="avatar" id="userAvatar">
+                <button class="btn btn-outline" onclick="api.logout()">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="page-header">
+            <h1>Browse Carts</h1>
+            <p>Find and join carts near you</p>
+        </div>
+
+        <div class="flex-between mb-3">
+            <button class="btn btn-primary" onclick="openCreateCartModal()">
+                <i class="fas fa-plus"></i> Create New Cart
+            </button>
+            <button class="btn btn-secondary" onclick="loadCarts()">
+                <i class="fas fa-sync"></i> Refresh
+            </button>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+            <div class="filter-row">
+                <div class="form-group">
+                    <label for="platformFilter">Platform</label>
+                    <select id="platformFilter" class="form-control" onchange="loadCarts()">
+                        <option value="">All Platforms</option>
+                        <option value="blinkit">Blinkit</option>
+                        <option value="zepto">Zepto</option>
+                        <option value="swiggy">Swiggy Instamart</option>
+                        <option value="bigbasket">BigBasket</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="distanceFilter">Max Distance (km)</label>
+                    <select id="distanceFilter" class="form-control" onchange="loadCarts()">
+                        <option value="">Any Distance</option>
+                        <option value="1">Within 1 km</option>
+                        <option value="2" selected>Within 2 km</option>
+                        <option value="3">Within 3 km</option>
+                        <option value="5">Within 5 km</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="cityFilter">City</label>
+                    <select id="cityFilter" class="form-control" onchange="loadCarts()">
+                        <option value="">All Cities</option>
+                        <option value="Mumbai">Mumbai</option>
+                        <option value="Delhi">Delhi</option>
+                        <option value="Bangalore">Bangalore</option>
+                        <option value="Hyderabad">Hyderabad</option>
+                        <option value="Pune">Pune</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Carts Grid -->
+        <div id="cartsContainer">
+            <div class="loading">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Cart Modal -->
+    <div id="createCartModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create New Cart</h2>
+                <button class="close-modal" onclick="closeCreateCartModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="createCartForm">
+                <div class="form-group">
+                    <label for="platform">Platform *</label>
+                    <select id="platform" class="form-control" required>
+                        <option value="">Select Platform</option>
+                        <option value="blinkit">Blinkit</option>
+                        <option value="zepto">Zepto</option>
+                        <option value="swiggy">Swiggy Instamart</option>
+                        <option value="bigbasket">BigBasket</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="deliveryCharge">Delivery Charge (₹) *</label>
+                    <input type="number" id="deliveryCharge" class="form-control" min="1" value="50" required>
+                </div>
+                <div class="form-group">
+                    <label for="maxMembers">Maximum Members *</label>
+                    <input type="number" id="maxMembers" class="form-control" min="2" max="10" value="4" required>
+                </div>
+                <div class="form-group">
+                    <label for="maxDistance">Maximum Distance (km) *</label>
+                    <input type="number" id="maxDistance" class="form-control" min="0.5" max="5" step="0.5" value="2" required>
+                </div>
+                <div class="form-group">
+                    <label for="notes">Notes (Optional)</label>
+                    <textarea id="notes" class="form-control" placeholder="Add any special instructions..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">
+                    <i class="fas fa-plus-circle"></i> Create Cart
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Share Modal -->
+    <div id="shareModal" class="share-modal">
+        <div class="share-modal-content">
+            <div class="share-header">
+                <h2><i class="fas fa-share-nodes"></i> Share Cart</h2>
+                <p>Invite friends to join and split delivery charges</p>
+            </div>
+
+            <div class="share-link">
+                <input type="text" id="shareLink" readonly>
+                <button class="btn btn-primary" onclick="copyShareLink()">
+                    <i class="fas fa-copy"></i> Copy
+                </button>
+            </div>
+
+            <div class="share-options">
+                <div class="share-option whatsapp" onclick="shareViaWhatsApp()">
+                    <i class="fab fa-whatsapp"></i>
+                    <span>WhatsApp</span>
+                </div>
+                <div class="share-option facebook" onclick="shareViaFacebook()">
+                    <i class="fab fa-facebook"></i>
+                    <span>Facebook</span>
+                </div>
+                <div class="share-option twitter" onclick="shareViaTwitter()">
+                    <i class="fab fa-twitter"></i>
+                    <span>Twitter</span>
+                </div>
+                <div class="share-option email" onclick="shareViaEmail()">
+                    <i class="fas fa-envelope"></i>
+                    <span>Email</span>
+                </div>
+                <div class="share-option sms" onclick="shareViaSMS()">
+                    <i class="fas fa-sms"></i>
+                    <span>SMS</span>
+                </div>
+            </div>
+
+            <div class="qr-code">
+                <h4>Scan QR Code to Join</h4>
+                <img id="qrCode" src="" alt="QR Code">
+            </div>
+
+            <button class="platform-link" onclick="openDeliveryApp()">
+                <i class="fas fa-shopping-cart"></i>
+                Open in Delivery App
+            </button>
+
+            <button class="btn btn-outline btn-full" onclick="closeShareModal()">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script>
+        if (!requireAuth()) window.location.href = 'login.html';
+
+        const user = api.getUser();
+        if (user) {
+            document.getElementById('userName').textContent = user.name;
+            document.getElementById('userAvatar').src = user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`;
+        }
+
+        async function loadCarts() {
+            const platform = document.getElementById('platformFilter').value;
+            const maxDistance = document.getElementById('distanceFilter').value;
+            const city = document.getElementById('cityFilter').value;
+
+            const filters = {};
+            if (platform) filters.platform = platform;
+            if (maxDistance) filters.maxDistance = maxDistance;
+            if (city) filters.city = city;
+
+            try {
+                const response = await api.getCarts(filters);
+                const carts = response.data;
+
+                const container = document.getElementById('cartsContainer');
+
+                if (carts.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-search"></i>
+                            <h3>No carts found</h3>
+                            <p>Try adjusting your filters or create a new cart</p>
+                            <button class="btn btn-primary" onclick="openCreateCartModal()">Create Cart</button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = `<div class="card-grid">${carts.map(cart => {
+                    const savings = cart.deliveryCharge - (cart.deliveryCharge / cart.maxMembers);
+                    const fillPercent = (cart.members.length / cart.maxMembers) * 100;
+
+                    return `
+                        <div class="cart-card">
+                            <div class="cart-card-header">
+                                <div>
+                                    <span class="platform-badge platform-${cart.platform}">${cart.platform}</span>
+                                    ${cart.distance ? `<span class="distance-badge ml-2">${cart.distance} km away</span>` : ''}
+                                </div>
+                                <span class="badge badge-${cart.status === 'active' ? 'success' : cart.status === 'full' ? 'warning' : 'primary'}">${cart.status}</span>
+                            </div>
+
+                            <div class="cart-info">
+                                <div class="info-row">
+                                    <span class="info-label">Location</span>
+                                    <span class="info-value">${cart.location.city}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Delivery Charge</span>
+                                    <span class="info-value">${formatCurrency(cart.deliveryCharge)}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Split Amount</span>
+                                    <span class="info-value">${formatCurrency(cart.deliveryCharge / cart.maxMembers)}</span>
+                                </div>
+                            </div>
+
+                            <div class="members-progress">
+                                <div class="flex-between mb-1">
+                                    <small class="info-label">Members</small>
+                                    <small class="info-value">${cart.members.length}/${cart.maxMembers}</small>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: ${fillPercent}%"></div>
+                                </div>
+                            </div>
+
+                            <div class="savings-highlight">
+                                💰 Save ${formatCurrency(savings)} by joining!
+                            </div>
+
+                            <div class="cart-actions">
+                                ${cart.status === 'active' ? `
+                                    <button class="btn btn-primary" style="flex: 2;" onclick="joinCart('${cart._id}')">
+                                        <i class="fas fa-user-plus"></i> Join Cart
+                                    </button>
+                                    <button class="btn-share" onclick="openShareModal('${cart._id}', ${JSON.stringify(cart).replace(/"/g, '&quot;')})">
+                                        <i class="fas fa-share-nodes"></i>
+                                    </button>
+                                ` : `
+                                    <button class="btn btn-outline" style="flex: 1;" disabled>
+                                        Cart ${cart.status}
+                                    </button>
+                                `}
+                            </div>
+                        </div>
+                    `;
+                }).join('')}</div>`;
+
+            } catch (error) {
+                console.error('Error loading carts:', error);
+                showToast(error.message, 'error');
+            }
+        }
+
+        async function joinCart(cartId) {
+            if (!confirm('Are you sure you want to join this cart?')) return;
+
+            try {
+                const response = await api.joinCart(cartId);
+                if (response.success) {
+                    showToast('Successfully joined cart!', 'success');
+                    loadCarts();
+                    setTimeout(() => {
+                        window.location.href = `cart-details.html?id=${cartId}`;
+                    }, 1500);
+                }
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        }
+
+        function openCreateCartModal() {
+            document.getElementById('createCartModal').classList.add('active');
+        }
+
+        function closeCreateCartModal() {
+            document.getElementById('createCartModal').classList.remove('active');
+        }
+
+        document.getElementById('createCartForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const cartData = {
+                platform: document.getElementById('platform').value,
+                deliveryCharge: parseFloat(document.getElementById('deliveryCharge').value),
+                maxMembers: parseInt(document.getElementById('maxMembers').value),
+                maxDistance: parseFloat(document.getElementById('maxDistance').value),
+                notes: document.getElementById('notes').value,
+                location: user.location
+            };
+
+            try {
+                const response = await api.createCart(cartData);
+                if (response.success) {
+                    showToast('Cart created successfully!', 'success');
+                    closeCreateCartModal();
+                    loadCarts();
+                }
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        });
+
+        // Load carts on page load
+        loadCarts();
+
+        // Share functionality
+        let currentShareCart = null;
+
+        function openShareModal(cartId, cart) {
+            currentShareCart = typeof cart === 'string' ? JSON.parse(cart.replace(/&quot;/g, '"')) : cart;
+            
+            const modal = document.getElementById('shareModal');
+            document.getElementById('shareLink').value = cartSharing.generateShareLink(cartId);
+            document.getElementById('qrCode').src = cartSharing.generateQRCode(cartId);
+            
+            modal.classList.add('active');
+        }
+
+        function closeShareModal() {
+            document.getElementById('shareModal').classList.remove('active');
+            currentShareCart = null;
+        }
+
+        async function copyShareLink() {
+            const success = await cartSharing.copyLink(currentShareCart._id);
+            if (success) {
+                showToast('Link copied to clipboard!', 'success');
+            } else {
+                showToast('Failed to copy link', 'error');
+            }
+        }
+
+        function shareViaWhatsApp() {
+            cartSharing.shareViaWhatsApp(currentShareCart);
+        }
+
+        function shareViaFacebook() {
+            cartSharing.shareOnFacebook(currentShareCart);
+        }
+
+        function shareViaTwitter() {
+            cartSharing.shareOnTwitter(currentShareCart);
+        }
+
+        function shareViaEmail() {
+            cartSharing.shareViaEmail(currentShareCart);
+        }
+
+        function shareViaSMS() {
+            cartSharing.shareViaSMS(currentShareCart);
+        }
+
+        function openDeliveryApp() {
+            cartSharing.openDeliveryApp(currentShareCart.platform);
+        }
+
+        // Close modal on ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeShareModal();
+            }
+        });
+    </script>
+</body>
+</html>

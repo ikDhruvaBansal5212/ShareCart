@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop Items - ShareCart</title>
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .shop-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cart-summary {
+            background: rgba(255,255,255,0.2);
+            padding: 16px 24px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .cart-summary h3 {
+            margin: 0 0 8px 0;
+            font-size: 16px;
+        }
+
+        .cart-total {
+            font-size: 28px;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .min-order-bar {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            height: 12px;
+            background: #e5e7eb;
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+            transition: width 0.3s;
+            position: relative;
+        }
+
+        .progress-fill.incomplete {
+            background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        .progress-message {
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .progress-message.complete {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .progress-message.incomplete {
+            background: #fed7aa;
+            color: #92400e;
+        }
+
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .category-btn {
+            padding: 10px 20px;
+            border: 2px solid #e5e7eb;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .category-btn:hover {
+            border-color: var(--primary);
+            background: #f0f9ff;
+        }
+
+        .category-btn.active {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+        }
+
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .item-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .item-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+
+        .item-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            background: #f3f4f6;
+        }
+
+        .item-name {
+            font-weight: 600;
+            font-size: 16px;
+            margin: 0 0 4px 0;
+            color: var(--dark);
+        }
+
+        .item-brand {
+            font-size: 13px;
+            color: var(--gray);
+            margin-bottom: 8px;
+        }
+
+        .item-price {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 12px;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 4px;
+        }
+
+        .quantity-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: var(--primary);
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quantity-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .quantity-display {
+            min-width: 40px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .add-to-cart-btn {
+            flex: 1;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .add-to-cart-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .cart-actions {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        .fab-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .fab-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+        }
+
+        .fab-btn.view-cart {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .fab-btn.share-cart {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ef4444;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .my-cart-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .my-cart-modal.active {
+            display: flex;
+        }
+
+        .my-cart-content {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .cart-item {
+            display: flex;
+            gap: 16px;
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .cart-item-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            background: #f3f4f6;
+        }
+
+        .cart-item-details {
+            flex: 1;
+        }
+
+        .cart-item-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .cart-item-price {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray);
+        }
+
+        .empty-cart i {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <i class="fas fa-shopping-cart"></i>
+            <span>ShareCart</span>
+        </div>
+        <div class="nav-links">
+            <a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="shop.html" class="active"><i class="fas fa-store"></i> Shop</a>
+            <a href="shared-carts.html"><i class="fas fa-users"></i> Shared Carts</a>
+            <a href="orders.html"><i class="fas fa-receipt"></i> Orders</a>
+            <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
+            <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Shop Header -->
+        <div class="shop-header">
+            <div>
+                <h1 style="margin: 0 0 4px 0;">Shop Items</h1>
+                <p style="margin: 0; opacity: 0.9;">Add items to your cart and share with nearby users</p>
+            </div>
+            <div class="cart-summary">
+                <h3>My Cart</h3>
+                <p class="cart-total">₹<span id="headerCartTotal">0</span></p>
+            </div>
+        </div>
+
+        <!-- Minimum Order Progress -->
+        <div class="min-order-bar">
+            <div class="progress-info">
+                <span>Cart Total: ₹<span id="currentTotal">0</span></span>
+                <span>Minimum: ₹250</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill incomplete" id="progressFill" style="width: 0%"></div>
+            </div>
+            <div class="progress-message incomplete" id="progressMessage">
+                Add ₹<span id="remainingAmount">250</span> more to avoid delivery charges or share your cart!
+            </div>
+        </div>
+
+        <!-- Category Filters -->
+        <div class="filters">
+            <button class="category-btn active" onclick="filterCategory('all')">All Items</button>
+            <button class="category-btn" onclick="filterCategory('snacks')">Snacks</button>
+            <button class="category-btn" onclick="filterCategory('beverages')">Beverages</button>
+            <button class="category-btn" onclick="filterCategory('groceries')">Groceries</button>
+            <button class="category-btn" onclick="filterCategory('dairy')">Dairy</button>
+            <button class="category-btn" onclick="filterCategory('personal')">Personal Care</button>
+        </div>
+
+        <!-- Items Grid -->
+        <div class="items-grid" id="itemsGrid">
+            <!-- Items will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Floating Action Buttons -->
+    <div class="cart-actions">
+        <button class="fab-btn view-cart" onclick="openMyCart()" title="View Cart">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-badge" id="cartBadge">0</span>
+        </button>
+        <button class="fab-btn share-cart" onclick="shareMyCart()" title="Share Cart" id="shareBtn" style="display: none;">
+            <i class="fas fa-share-nodes"></i>
+        </button>
+    </div>
+
+    <!-- My Cart Modal -->
+    <div class="my-cart-modal" id="myCartModal">
+        <div class="my-cart-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 style="margin: 0;">My Cart</h2>
+                <button class="btn btn-outline" onclick="closeMyCart()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div id="cartItemsList">
+                <!-- Cart items will be shown here -->
+            </div>
+
+            <div style="margin-top: 24px; padding-top: 24px; border-top: 2px solid var(--border);">
+                <div style="display: flex; justify-content: space-between; font-size: 20px; font-weight: bold; margin-bottom: 16px;">
+                    <span>Total:</span>
+                    <span style="color: var(--primary);">₹<span id="modalCartTotal">0</span></span>
+                </div>
+                <button class="btn btn-primary btn-full" onclick="proceedToCheckout()" id="checkoutBtn">
+                    Proceed to Checkout
+                </button>
+                <button class="btn btn-success btn-full" onclick="shareMyCart()" id="shareModalBtn" style="margin-top: 12px; display: none;">
+                    <i class="fas fa-share-nodes"></i> Share Cart with Others
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script>
+        // Sample items database
+        const items = [
+            // Snacks
+            { id: 1, name: "Lays Classic Chips", brand: "Lays", price: 20, category: "snacks", image: "🍟" },
+            { id: 2, name: "Kurkure Masala Munch", brand: "Kurkure", price: 20, category: "snacks", image: "🌶️" },
+            { id: 3, name: "Haldiram's Bhujia", brand: "Haldiram's", price: 40, category: "snacks", image: "🥜" },
+            { id: 4, name: "Bingo Mad Angles", brand: "Bingo", price: 20, category: "snacks", image: "🔺" },
+            { id: 5, name: "Parle-G Biscuits", brand: "Parle", price: 10, category: "snacks", image: "🍪" },
+            { id: 6, name: "Britannia Good Day", brand: "Britannia", price: 30, category: "snacks", image: "🍪" },
+            { id: 7, name: "Hide & Seek Cookies", brand: "Parle", price: 35, category: "snacks", image: "🍪" },
+            { id: 8, name: "Maggi Noodles 4-Pack", brand: "Maggi", price: 56, category: "snacks", image: "🍜" },
+            
+            // Beverages
+            { id: 9, name: "Coca Cola 750ml", brand: "Coca Cola", price: 40, category: "beverages", image: "🥤" },
+            { id: 10, name: "Pepsi 750ml", brand: "Pepsi", price: 40, category: "beverages", image: "🥤" },
+            { id: 11, name: "Sprite 750ml", brand: "Sprite", price: 40, category: "beverages", image: "🥤" },
+            { id: 12, name: "Frooti Mango Drink", brand: "Frooti", price: 20, category: "beverages", image: "🥭" },
+            { id: 13, name: "Red Bull Energy Drink", brand: "Red Bull", price: 120, category: "beverages", image: "⚡" },
+            { id: 14, name: "Bisleri Water 1L", brand: "Bisleri", price: 20, category: "beverages", image: "💧" },
+            { id: 15, name: "Paper Boat Aamras", brand: "Paper Boat", price: 35, category: "beverages", image: "🧃" },
+            
+            // Groceries
+            { id: 16, name: "Tata Salt 1kg", brand: "Tata", price: 22, category: "groceries", image: "🧂" },
+            { id: 17, name: "Fortune Sunflower Oil 1L", brand: "Fortune", price: 150, category: "groceries", image: "🛢️" },
+            { id: 18, name: "India Gate Basmati Rice 1kg", brand: "India Gate", price: 120, category: "groceries", image: "🍚" },
+            { id: 19, name: "Aashirvaad Atta 5kg", brand: "Aashirvaad", price: 240, category: "groceries", image: "🌾" },
+            { id: 20, name: "Toor Dal 1kg", brand: "Local", price: 110, category: "groceries", image: "🫘" },
+            { id: 21, name: "Sugar 1kg", brand: "Local", price: 45, category: "groceries", image: "🍬" },
+            
+            // Dairy
+            { id: 22, name: "Amul Milk 1L", brand: "Amul", price: 62, category: "dairy", image: "🥛" },
+            { id: 23, name: "Amul Butter 500g", brand: "Amul", price: 260, category: "dairy", image: "🧈" },
+            { id: 24, name: "Mother Dairy Curd 400g", brand: "Mother Dairy", price: 40, category: "dairy", image: "🥣" },
+            { id: 25, name: "Amul Cheese Slices", brand: "Amul", price: 140, category: "dairy", image: "🧀" },
+            { id: 26, name: "Nestle Dahi", brand: "Nestle", price: 30, category: "dairy", image: "🥣" },
+            
+            // Personal Care
+            { id: 27, name: "Colgate Toothpaste", brand: "Colgate", price: 85, category: "personal", image: "🦷" },
+            { id: 28, name: "Dove Soap", brand: "Dove", price: 65, category: "personal", image: "🧼" },
+            { id: 29, name: "Dettol Handwash", brand: "Dettol", price: 95, category: "personal", image: "🧴" },
+            { id: 30, name: "Head & Shoulders", brand: "H&S", price: 180, category: "personal", image: "🧴" },
+            { id: 31, name: "Gillette Razor", brand: "Gillette", price: 120, category: "personal", image: "🪒" },
+            { id: 32, name: "Nivea Body Lotion", brand: "Nivea", price: 150, category: "personal", image: "🧴" },
+        ];
+
+        let myCart = [];
+        let currentCategory = 'all';
+
+        // Initialize
+        function init() {
+            loadItems();
+            updateCartUI();
+        }
+
+        function loadItems() {
+            const grid = document.getElementById('itemsGrid');
+            const filteredItems = currentCategory === 'all' 
+                ? items 
+                : items.filter(item => item.category === currentCategory);
+
+            grid.innerHTML = filteredItems.map(item => {
+                const cartItem = myCart.find(c => c.id === item.id);
+                const quantity = cartItem ? cartItem.quantity : 0;
+
+                return `
+                    <div class="item-card">
+                        <div class="item-image" style="font-size: 72px; display: flex; align-items: center; justify-content: center;">
+                            ${item.image}
+                        </div>
+                        <h3 class="item-name">${item.name}</h3>
+                        <p class="item-brand">${item.brand}</p>
+                        <p class="item-price">₹${item.price}</p>
+                        <div class="item-actions">
+                            ${quantity > 0 ? `
+                                <div class="quantity-control">
+                                    <button class="quantity-btn" onclick="updateQuantity(${item.id}, ${quantity - 1})">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <span class="quantity-display">${quantity}</span>
+                                    <button class="quantity-btn" onclick="updateQuantity(${item.id}, ${quantity + 1})">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            ` : `
+                                <button class="add-to-cart-btn" onclick="addToCart(${item.id})">
+                                    <i class="fas fa-cart-plus"></i> Add
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterCategory(category) {
+            currentCategory = category;
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            loadItems();
+        }
+
+        function addToCart(itemId) {
+            const item = items.find(i => i.id === itemId);
+            myCart.push({ ...item, quantity: 1 });
+            loadItems();
+            updateCartUI();
+            showToast(`${item.name} added to cart`, 'success');
+        }
+
+        function updateQuantity(itemId, newQuantity) {
+            if (newQuantity <= 0) {
+                myCart = myCart.filter(item => item.id !== itemId);
+            } else {
+                const cartItem = myCart.find(item => item.id === itemId);
+                if (cartItem) {
+                    cartItem.quantity = newQuantity;
+                }
+            }
+            loadItems();
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const total = myCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const itemCount = myCart.reduce((sum, item) => sum + item.quantity, 0);
+            const remaining = Math.max(0, 250 - total);
+            const percentage = Math.min(100, (total / 250) * 100);
+
+            document.getElementById('headerCartTotal').textContent = total;
+            document.getElementById('currentTotal').textContent = total;
+            document.getElementById('cartBadge').textContent = itemCount;
+            document.getElementById('remainingAmount').textContent = remaining;
+            
+            const progressFill = document.getElementById('progressFill');
+            const progressMessage = document.getElementById('progressMessage');
+            const shareBtn = document.getElementById('shareBtn');
+            
+            progressFill.style.width = percentage + '%';
+            
+            if (total >= 250) {
+                progressFill.classList.remove('incomplete');
+                progressMessage.classList.remove('incomplete');
+                progressMessage.classList.add('complete');
+                progressMessage.innerHTML = '🎉 Great! Your cart meets the minimum order. No delivery charges!';
+                shareBtn.style.display = 'none';
+            } else if (total > 0) {
+                progressFill.classList.add('incomplete');
+                progressMessage.classList.add('incomplete');
+                progressMessage.classList.remove('complete');
+                progressMessage.innerHTML = `Add ₹${remaining} more to avoid delivery charges or <strong>share your cart!</strong>`;
+                shareBtn.style.display = 'flex';
+            } else {
+                shareBtn.style.display = 'none';
+            }
+        }
+
+        function openMyCart() {
+            const modal = document.getElementById('myCartModal');
+            const cartList = document.getElementById('cartItemsList');
+            const total = myCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            
+            if (myCart.length === 0) {
+                cartList.innerHTML = `
+                    <div class="empty-cart">
+                        <i class="fas fa-shopping-cart"></i>
+                        <h3>Your cart is empty</h3>
+                        <p>Add items to get started</p>
+                    </div>
+                `;
+            } else {
+                cartList.innerHTML = myCart.map(item => `
+                    <div class="cart-item">
+                        <div style="font-size: 48px;">${item.image}</div>
+                        <div class="cart-item-details">
+                            <div class="cart-item-name">${item.name}</div>
+                            <div class="cart-item-price">₹${item.price} × ${item.quantity} = ₹${item.price * item.quantity}</div>
+                        </div>
+                        <div class="quantity-control">
+                            <button class="quantity-btn" onclick="updateQuantity(${item.id}, ${item.quantity - 1})">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <span class="quantity-display">${item.quantity}</span>
+                            <button class="quantity-btn" onclick="updateQuantity(${item.id}, ${item.quantity + 1})">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            document.getElementById('modalCartTotal').textContent = total;
+            
+            if (total >= 250) {
+                document.getElementById('checkoutBtn').style.display = 'block';
+                document.getElementById('shareModalBtn').style.display = 'none';
+            } else if (total > 0) {
+                document.getElementById('checkoutBtn').style.display = 'none';
+                document.getElementById('shareModalBtn').style.display = 'block';
+            } else {
+                document.getElementById('checkoutBtn').style.display = 'none';
+                document.getElementById('shareModalBtn').style.display = 'none';
+            }
+
+            modal.classList.add('active');
+        }
+
+        function closeMyCart() {
+            document.getElementById('myCartModal').classList.remove('active');
+        }
+
+        function shareMyCart() {
+            const total = myCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            if (total === 0) {
+                showToast('Add items to your cart first!', 'error');
+                return;
+            }
+            if (total >= 250) {
+                showToast('Your cart is already complete! Proceed to checkout.', 'info');
+                return;
+            }
+            
+            // Save cart to localStorage and redirect to shared carts page
+            localStorage.setItem('myShoppingCart', JSON.stringify(myCart));
+            window.location.href = 'shared-carts.html?action=share';
+        }
+
+        function proceedToCheckout() {
+            showToast('Checkout functionality coming soon!', 'info');
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = '../index.html';
+        }
+
+        // Initialize on page load
+        init();
+    </script>
+</body>
+</html>

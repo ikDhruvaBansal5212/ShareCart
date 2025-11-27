@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shared Carts - ShareCart</title>
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="../js/cart-sharing.js"></script>
+    <style>
+        .page-header {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 32px;
+            border-radius: 16px;
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        .page-header h1 {
+            margin: 0 0 8px 0;
+            font-size: 32px;
+        }
+
+        .page-header p {
+            margin: 0;
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .cart-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
+            transition: all 0.3s;
+        }
+
+        .cart-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        }
+
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .user-details h3 {
+            margin: 0 0 4px 0;
+            font-size: 18px;
+        }
+
+        .user-details p {
+            margin: 0;
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        .distance-badge {
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .cart-progress {
+            margin: 20px 0;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background: #e5e7eb;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+            transition: width 0.3s;
+        }
+
+        .cart-items-preview {
+            margin: 20px 0;
+        }
+
+        .items-count {
+            background: #f3f4f6;
+            padding: 12px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .cart-footer {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn-add-items {
+            flex: 2;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-add-items:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--gray);
+        }
+
+        .empty-state i {
+            font-size: 80px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .empty-state h2 {
+            margin: 0 0 12px 0;
+        }
+
+        .empty-state p {
+            margin: 0 0 24px 0;
+        }
+
+        .my-shared-cart {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .my-shared-cart .cart-header {
+            border-bottom-color: rgba(255,255,255,0.3);
+        }
+
+        .my-shared-cart .distance-badge {
+            background: rgba(255,255,255,0.3);
+            color: white;
+        }
+
+        .my-shared-cart .items-count {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .my-shared-cart .progress-bar {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .my-shared-cart .progress-fill {
+            background: rgba(255,255,255,0.8);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <i class="fas fa-shopping-cart"></i>
+            <span>ShareCart</span>
+        </div>
+        <div class="nav-links">
+            <a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="shop.html"><i class="fas fa-store"></i> Shop</a>
+            <a href="shared-carts.html" class="active"><i class="fas fa-users"></i> Shared Carts</a>
+            <a href="orders.html"><i class="fas fa-receipt"></i> Orders</a>
+            <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
+            <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1><i class="fas fa-users"></i> Shared Carts</h1>
+            <p>Help nearby users complete their orders and save together!</p>
+        </div>
+
+        <div id="sharedCartsContainer">
+            <!-- Shared carts will be loaded here -->
+        </div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script>
+        let myLocation = null;
+        let mySharedCart = null;
+
+        async function init() {
+            // Get user location
+            try {
+                const userData = await api.getMe();
+                myLocation = userData.data.location;
+            } catch (error) {
+                console.error('Error getting user data:', error);
+            }
+
+            // Check if user is sharing their cart
+            const urlParams = new URLSearchParams(window.location.search);
+            const myCart = localStorage.getItem('myShoppingCart');
+            
+            if (urlParams.get('action') === 'share' && myCart) {
+                shareMyCart(JSON.parse(myCart));
+            }
+
+            loadSharedCarts();
+        }
+
+        function shareMyCart(cartItems) {
+            const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const remaining = 250 - total;
+
+            mySharedCart = {
+                id: 'my-cart',
+                user: {
+                    name: 'You',
+                    location: myLocation
+                },
+                items: cartItems,
+                currentTotal: total,
+                remaining: remaining,
+                distance: 0,
+                isMyCart: true
+            };
+
+            showToast('Your cart is now shared! Others nearby can add items to help you reach ₹250.', 'success');
+            loadSharedCarts();
+        }
+
+        function loadSharedCarts() {
+            const container = document.getElementById('sharedCartsContainer');
+            
+            // Mock data - In production, this would come from backend
+            const sharedCarts = [
+                {
+                    id: 1,
+                    user: {
+                        name: 'Rahul Kumar',
+                        location: { city: 'Mumbai', area: 'Andheri West' }
+                    },
+                    items: [
+                        { name: 'Lays Chips', quantity: 2, price: 20 },
+                        { name: 'Coca Cola', quantity: 1, price: 40 },
+                        { name: 'Maggi Noodles', quantity: 2, price: 56 }
+                    ],
+                    currentTotal: 136,
+                    remaining: 114,
+                    distance: 0.5
+                },
+                {
+                    id: 2,
+                    user: {
+                        name: 'Priya Sharma',
+                        location: { city: 'Mumbai', area: 'Andheri East' }
+                    },
+                    items: [
+                        { name: 'Amul Milk', quantity: 1, price: 62 },
+                        { name: 'Bread', quantity: 1, price: 40 },
+                        { name: 'Eggs 6pc', quantity: 1, price: 42 }
+                    ],
+                    currentTotal: 144,
+                    remaining: 106,
+                    distance: 0.8
+                },
+                {
+                    id: 3,
+                    user: {
+                        name: 'Amit Patel',
+                        location: { city: 'Mumbai', area: 'Versova' }
+                    },
+                    items: [
+                        { name: 'Colgate', quantity: 1, price: 85 },
+                        { name: 'Dove Soap', quantity: 2, price: 65 },
+                        { name: 'Shampoo', quantity: 1, price: 120 }
+                    ],
+                    currentTotal: 200,
+                    remaining: 50,
+                    distance: 1.2
+                }
+            ];
+
+            let allCarts = [...sharedCarts];
+            if (mySharedCart) {
+                allCarts.unshift(mySharedCart);
+            }
+
+            if (allCarts.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-shopping-cart"></i>
+                        <h2>No Shared Carts Nearby</h2>
+                        <p>Be the first to share your cart and let others join!</p>
+                        <button class="btn btn-primary" onclick="window.location.href='shop.html'">
+                            <i class="fas fa-store"></i> Start Shopping
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = allCarts.map(cart => {
+                const percentage = (cart.currentTotal / 250) * 100;
+                const itemCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+                const isMyCart = cart.isMyCart;
+
+                return `
+                    <div class="cart-card ${isMyCart ? 'my-shared-cart' : ''}">
+                        <div class="cart-header">
+                            <div class="user-info">
+                                <div class="user-avatar">
+                                    ${isMyCart ? '👤' : cart.user.name.charAt(0)}
+                                </div>
+                                <div class="user-details">
+                                    <h3>${cart.user.name}${isMyCart ? ' (Your Cart)' : ''}</h3>
+                                    <p><i class="fas fa-map-marker-alt"></i> ${cart.user.location.area || cart.user.location.city}</p>
+                                </div>
+                            </div>
+                            <div class="distance-badge">
+                                <i class="fas fa-location-arrow"></i> ${cart.distance} km
+                            </div>
+                        </div>
+
+                        <div class="cart-progress">
+                            <div class="progress-info">
+                                <span>Current: ₹${cart.currentTotal}</span>
+                                <span>Need: ₹${cart.remaining} more</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${percentage}%"></div>
+                            </div>
+                        </div>
+
+                        <div class="cart-items-preview">
+                            <div class="items-count">
+                                <i class="fas fa-shopping-basket"></i>
+                                <span>${itemCount} items • ${cart.items.length} unique products</span>
+                            </div>
+                            <div style="margin-top: 12px; padding-left: 12px;">
+                                ${cart.items.slice(0, 3).map(item => 
+                                    `<div style="font-size: 14px; color: ${isMyCart ? 'rgba(255,255,255,0.9)' : 'var(--gray)'}; margin: 4px 0;">
+                                        • ${item.name} × ${item.quantity}
+                                    </div>`
+                                ).join('')}
+                                ${cart.items.length > 3 ? `<div style="font-size: 14px; color: ${isMyCart ? 'rgba(255,255,255,0.7)' : 'var(--gray)'}; margin: 4px 0;">+ ${cart.items.length - 3} more items</div>` : ''}
+                            </div>
+                        </div>
+
+                        ${isMyCart ? `
+                            <div class="cart-footer">
+                                <button class="btn btn-outline btn-full" style="color: white; border-color: white;" onclick="stopSharing()">
+                                    <i class="fas fa-times"></i> Stop Sharing
+                                </button>
+                            </div>
+                        ` : `
+                            <div class="cart-footer">
+                                <button class="btn-add-items" onclick="addToSharedCart(${cart.id})">
+                                    <i class="fas fa-plus-circle"></i> Add My Items & Complete Order
+                                </button>
+                            </div>
+                        `}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function addToSharedCart(cartId) {
+            // Store the cart ID to add items to
+            localStorage.setItem('targetSharedCart', cartId);
+            window.location.href = 'shop.html?mode=add-to-shared';
+        }
+
+        function stopSharing() {
+            if (confirm('Stop sharing your cart? You can share it again later.')) {
+                localStorage.removeItem('myShoppingCart');
+                mySharedCart = null;
+                showToast('Cart sharing stopped', 'info');
+                loadSharedCarts();
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('myShoppingCart');
+            window.location.href = '../index.html';
+        }
+
+        // Initialize
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShareCart - Split Delivery Charges & Save Money</title>
+    <link rel="stylesheet" href="css/home.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-shopping-cart"></i> ShareCart
+            </a>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#how-it-works">How It Works</a></li>
+                <li><a href="#platforms">Platforms</a></li>
+                <li><a href="#testimonials">Testimonials</a></li>
+            </ul>
+            <div class="nav-auth">
+                <button onclick="openLoginModal()" class="btn btn-outline">Login</button>
+                <button onclick="openSignupModal()" class="btn btn-primary">Sign Up</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-overlay" onclick="closeLoginModal()"></div>
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeLoginModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-header">
+                <h2>Welcome Back!</h2>
+                <p>Login to continue saving on delivery charges</p>
+            </div>
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label for="loginEmail">Email Address</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="loginEmail" placeholder="Enter your email" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                    </div>
+                </div>
+                <div class="form-options">
+                    <label class="checkbox-label">
+                        <input type="checkbox"> Remember me
+                    </label>
+                    <a href="#" class="forgot-link">Forgot Password?</a>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+                <div class="form-divider">
+                    <span>Don't have an account?</span>
+                </div>
+                <button type="button" onclick="switchToSignup()" class="btn btn-outline btn-full">
+                    Create Account
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div id="signupModal" class="modal">
+        <div class="modal-overlay" onclick="closeSignupModal()"></div>
+        <div class="modal-content modal-large">
+            <button class="modal-close" onclick="closeSignupModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-header">
+                <h2>Create Your Account</h2>
+                <p>Join ShareCart and start saving money today!</p>
+            </div>
+            <form id="signupForm" class="auth-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="signupName">Full Name</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="signupName" placeholder="Enter your name" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupEmail">Email Address</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="signupEmail" placeholder="Enter your email" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="signupPhone">Phone Number</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-phone"></i>
+                            <input type="tel" id="signupPhone" placeholder="10-digit mobile number" pattern="[0-9]{10}" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupPassword">Password</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="signupPassword" placeholder="Min 6 characters" minlength="6" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="signupCity">City</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-city"></i>
+                            <input type="text" id="signupCity" placeholder="Enter your city" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupPincode">Pincode</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-map-pin"></i>
+                            <input type="text" id="signupPincode" placeholder="6-digit pincode" pattern="[0-9]{6}" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="signupAddress">Address</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <input type="text" id="signupAddress" placeholder="Enter your full address" required>
+                    </div>
+                </div>
+                <div class="location-capture">
+                    <button type="button" onclick="captureLocation()" class="btn btn-outline">
+                        <i class="fas fa-location-arrow"></i> Use My Current Location
+                    </button>
+                    <span id="locationStatus" class="location-status"></span>
+                </div>
+                <input type="hidden" id="signupLat" value="19.0760">
+                <input type="hidden" id="signupLng" value="72.8777">
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" required>
+                        I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+                    </label>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">
+                    <i class="fas fa-rocket"></i> Create Account
+                </button>
+                <div class="form-divider">
+                    <span>Already have an account?</span>
+                </div>
+                <button type="button" onclick="switchToLogin()" class="btn btn-outline btn-full">
+                    Login Instead
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">Split Delivery Charges<br>Save Money Together</h1>
+            <p class="hero-subtitle">Join nearby users ordering from the same platform and share delivery costs. Save up to 75% on every order!</p>
+            <div class="hero-buttons">
+                <button onclick="openSignupModal()" class="btn btn-primary btn-lg">
+                    <i class="fas fa-rocket"></i> Get Started Free
+                </button>
+                <a href="#how-it-works" class="btn btn-outline btn-lg">
+                    <i class="fas fa-play-circle"></i> Learn More
+                </a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat">
+                    <strong>1000+</strong>
+                    <span>Active Users</span>
+                </div>
+                <div class="stat">
+                    <strong>₹50,000+</strong>
+                    <span>Total Saved</span>
+                </div>
+                <div class="stat">
+                    <strong>500+</strong>
+                    <span>Carts Created</span>
+                </div>
+            </div>
+        </div>
+        <div class="hero-image">
+            <div class="hero-card">
+                <div class="card-header">
+                    <span class="platform-badge">Blinkit</span>
+                    <span class="badge badge-success">Active</span>
+                </div>
+                <div class="card-body">
+                    <div class="info">
+                        <span>Delivery Charge:</span>
+                        <strong>₹100</strong>
+                    </div>
+                    <div class="info">
+                        <span>Your Split:</span>
+                        <strong class="highlight">₹25</strong>
+                    </div>
+                    <div class="info">
+                        <span>You Save:</span>
+                        <strong class="success">₹75</strong>
+                    </div>
+                    <div class="members">
+                        <span>Members: 4/4</span>
+                        <div class="avatars">
+                            <div class="avatar">U1</div>
+                            <div class="avatar">U2</div>
+                            <div class="avatar">U3</div>
+                            <div class="avatar">U4</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <h2 class="section-title">Why Choose ShareCart?</h2>
+            <p class="section-subtitle">Save money, connect with neighbors, and make ordering more affordable</p>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-piggy-bank"></i>
+                    </div>
+                    <h3>Save Money</h3>
+                    <p>Split delivery charges with up to 10 people and save up to 90% on delivery fees</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <h3>Find Nearby Carts</h3>
+                    <p>Smart location-based matching finds users ordering from the same area</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3>Real-time Chat</h3>
+                    <p>Coordinate with cart members through built-in live chat</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Secure Payments</h3>
+                    <p>Safe and secure payment splitting with Razorpay integration</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h3>Rating System</h3>
+                    <p>Build trust with verified reviews and ratings from other users</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h3>Quick & Easy</h3>
+                    <p>Create or join a cart in seconds, no complex steps</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section id="how-it-works" class="how-it-works">
+        <div class="container">
+            <h2 class="section-title">How It Works</h2>
+            <p class="section-subtitle">Get started in 4 simple steps</p>
+            
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Sign Up</h3>
+                        <p>Create your free account and set your location</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Browse or Create</h3>
+                        <p>Find nearby carts or create your own for others to join</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Coordinate</h3>
+                        <p>Chat with cart members and coordinate your orders</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Pay & Save</h3>
+                        <p>Pay only your split amount and enjoy the savings!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Platforms -->
+    <section id="platforms" class="platforms">
+        <div class="container">
+            <h2 class="section-title">Supported Platforms</h2>
+            <p class="section-subtitle">Works with all major delivery services</p>
+            
+            <div class="platform-grid">
+                <div class="platform-card">
+                    <div class="platform-logo blinkit">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3>Blinkit</h3>
+                    <p>10-minute grocery delivery</p>
+                </div>
+
+                <div class="platform-card">
+                    <div class="platform-logo zepto">
+                        <i class="fas fa-shopping-basket"></i>
+                    </div>
+                    <h3>Zepto</h3>
+                    <p>Quick commerce delivery</p>
+                </div>
+
+                <div class="platform-card">
+                    <div class="platform-logo swiggy">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <h3>Swiggy Instamart</h3>
+                    <p>Food & grocery delivery</p>
+                </div>
+
+                <div class="platform-card">
+                    <div class="platform-logo bigbasket">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <h3>BigBasket</h3>
+                    <p>Online grocery store</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section id="testimonials" class="testimonials">
+        <div class="container">
+            <h2 class="section-title">What Our Users Say</h2>
+            
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p>"ShareCart has saved me so much money! I've cut my delivery costs by 80%. Highly recommend!"</p>
+                    <div class="author">
+                        <div class="avatar">PK</div>
+                        <div>
+                            <strong>Priya Kapoor</strong>
+                            <span>Mumbai</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <div class="stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p>"Great way to meet neighbors and save money. The chat feature makes coordination super easy!"</p>
+                    <div class="author">
+                        <div class="avatar">RS</div>
+                        <div>
+                            <strong>Rahul Sharma</strong>
+                            <span>Delhi</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <div class="stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p>"Simple, efficient, and saves me money on every order. The rating system ensures trustworthy users."</p>
+                    <div class="author">
+                        <div class="avatar">AM</div>
+                        <div>
+                            <strong>Anjali Mehta</strong>
+                            <span>Bangalore</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <h2>Ready to Start Saving?</h2>
+            <p>Join thousands of users saving money on delivery charges</p>
+            <button onclick="openSignupModal()" class="btn btn-primary btn-lg">
+                <i class="fas fa-rocket"></i> Sign Up Now - It's Free!
+            </button>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3><i class="fas fa-shopping-cart"></i> ShareCart</h3>
+                    <p>Split delivery charges and save money on every order</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#how-it-works">How It Works</a></li>
+                        <li><a href="#platforms">Platforms</a></li>
+                        <li><a href="pages/login.html">Login</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Connect With Us</h4>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 ShareCart. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script>
+        // Modal Functions
+        function openLoginModal() {
+            document.getElementById('loginModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        function openSignupModal() {
+            document.getElementById('signupModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSignupModal() {
+            document.getElementById('signupModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        function switchToSignup() {
+            closeLoginModal();
+            openSignupModal();
+        }
+
+        function switchToLogin() {
+            closeSignupModal();
+            openLoginModal();
+        }
+
+        // Geolocation
+        function captureLocation() {
+            const statusEl = document.getElementById('locationStatus');
+            statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting location...';
+            
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        document.getElementById('signupLat').value = position.coords.latitude;
+                        document.getElementById('signupLng').value = position.coords.longitude;
+                        statusEl.innerHTML = '<i class="fas fa-check-circle"></i> Location captured!';
+                        statusEl.style.color = '#10b981';
+                    },
+                    (error) => {
+                        statusEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Using default location (Mumbai)';
+                        statusEl.style.color = '#f59e0b';
+                    }
+                );
+            } else {
+                statusEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Geolocation not supported';
+                statusEl.style.color = '#ef4444';
+            }
+        }
+
+        // Login Form Handler
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+            
+            try {
+                const response = await api.login({ email, password });
+                if (response.success) {
+                    showToast('Login successful! Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'pages/dashboard.html';
+                    }, 1000);
+                }
+            } catch (error) {
+                showToast(error.message || 'Login failed. Please try again.', 'error');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+            }
+        });
+
+        // Signup Form Handler
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const userData = {
+                name: document.getElementById('signupName').value,
+                email: document.getElementById('signupEmail').value,
+                phone: document.getElementById('signupPhone').value,
+                password: document.getElementById('signupPassword').value,
+                location: {
+                    address: document.getElementById('signupAddress').value,
+                    city: document.getElementById('signupCity').value,
+                    pincode: document.getElementById('signupPincode').value,
+                    coordinates: [
+                        parseFloat(document.getElementById('signupLng').value),
+                        parseFloat(document.getElementById('signupLat').value)
+                    ]
+                }
+            };
+            
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account...';
+            
+            try {
+                const response = await api.register(userData);
+                if (response.success) {
+                    showToast('Account created successfully! Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'pages/dashboard.html';
+                    }, 1000);
+                }
+            } catch (error) {
+                showToast(error.message || 'Registration failed. Please try again.', 'error');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-rocket"></i> Create Account';
+            }
+        });
+
+        // Toast notification
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            `;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => toast.classList.add('show'), 100);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeLoginModal();
+                closeSignupModal();
+            }
+        });
+    </script>
+</body>
+</html>

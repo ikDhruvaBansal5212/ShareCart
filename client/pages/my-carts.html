@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Carts - ShareCart</title>
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--gray);
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .cart-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 16px;
+        }
+
+        .cart-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .member-list {
+            display: flex;
+            gap: 12px;
+            margin: 16px 0;
+            flex-wrap: wrap;
+        }
+
+        .member-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--light);
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+
+        .member-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+        }
+
+        .payment-status {
+            margin-top: 16px;
+            padding: 16px;
+            background: var(--light);
+            border-radius: 8px;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .status-item {
+            text-align: center;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .status-item .label {
+            font-size: 12px;
+            color: var(--gray);
+            margin-bottom: 4px;
+        }
+
+        .status-item .value {
+            font-size: 18px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="dashboard.html" class="logo">
+                <i class="fas fa-shopping-cart"></i> ShareCart
+            </a>
+            <ul class="nav-links">
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="browse-carts.html">Browse Carts</a></li>
+                <li><a href="my-carts.html" class="active">My Carts</a></li>
+                <li><a href="orders.html">Orders</a></li>
+                <li><a href="profile.html">Profile</a></li>
+            </ul>
+            <div class="user-menu">
+                <span id="userName">User</span>
+                <img src="https://ui-avatars.com/api/?name=User&background=random" alt="Avatar" class="avatar" id="userAvatar">
+                <button class="btn btn-outline" onclick="api.logout()">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>My Carts</h1>
+            <p>Manage your created and joined carts</p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('created')">
+                <i class="fas fa-folder-plus"></i> Created by Me
+            </button>
+            <button class="tab" onclick="switchTab('joined')">
+                <i class="fas fa-users"></i> Joined Carts
+            </button>
+        </div>
+
+        <!-- Created Carts Tab -->
+        <div id="createdTab" class="tab-content active">
+            <div id="createdCartsContainer">
+                <div class="loading">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Joined Carts Tab -->
+        <div id="joinedTab" class="tab-content">
+            <div id="joinedCartsContainer">
+                <div class="loading">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script>
+        if (!requireAuth()) window.location.href = 'login.html';
+
+        const user = api.getUser();
+        if (user) {
+            document.getElementById('userName').textContent = user.name;
+            document.getElementById('userAvatar').src = user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`;
+        }
+
+        let currentTab = 'created';
+        let createdCarts = [];
+        let joinedCarts = [];
+
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+            document.getElementById(`${tab}Tab`).classList.add('active');
+        }
+
+        async function loadMyCarts() {
+            try {
+                const response = await api.getMyCarts();
+                const carts = response.data;
+
+                createdCarts = carts.filter(c => c.createdBy._id === user._id);
+                joinedCarts = carts.filter(c => c.createdBy._id !== user._id);
+
+                renderCreatedCarts();
+                renderJoinedCarts();
+            } catch (error) {
+                console.error('Error loading carts:', error);
+                showToast(error.message, 'error');
+            }
+        }
+
+        function renderCreatedCarts() {
+            const container = document.getElementById('createdCartsContainer');
+
+            if (createdCarts.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-folder-open"></i>
+                        <h3>No carts created yet</h3>
+                        <p>Create a cart to start saving on delivery charges</p>
+                        <a href="browse-carts.html" class="btn btn-primary">Create Cart</a>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = createdCarts.map(cart => {
+                const splitAmount = cart.deliveryCharge / cart.maxMembers;
+                
+                return `
+                    <div class="cart-card">
+                        <div class="cart-header">
+                            <div>
+                                <span class="platform-badge platform-${cart.platform}">${cart.platform}</span>
+                                <span class="badge badge-${cart.status === 'active' ? 'success' : cart.status === 'full' ? 'warning' : 'primary'} ml-2">${cart.status}</span>
+                            </div>
+                            <div class="cart-actions">
+                                <button class="btn btn-sm btn-secondary" onclick="viewCart('${cart._id}')">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                                ${cart.status === 'active' ? `
+                                    <button class="btn btn-sm btn-danger" onclick="deleteCart('${cart._id}')">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            <div class="info-row">
+                                <span class="info-label">Delivery Charge</span>
+                                <span class="info-value">${formatCurrency(cart.deliveryCharge)}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Split Amount</span>
+                                <span class="info-value">${formatCurrency(splitAmount)}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Members</span>
+                                <span class="info-value">${cart.members.length}/${cart.maxMembers}</span>
+                            </div>
+                        </div>
+
+                        <div class="member-list">
+                            ${cart.members.map(member => `
+                                <div class="member-item">
+                                    <img src="${member.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=random`}" 
+                                         alt="${member.name}" class="member-avatar">
+                                    <span>${member.name}</span>
+                                    ${member._id === user._id ? '<span class="badge badge-primary">You</span>' : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        ${cart.order ? `
+                            <div class="payment-status">
+                                <h4>Payment Status</h4>
+                                <div class="status-grid">
+                                    <div class="status-item">
+                                        <div class="label">Total Amount</div>
+                                        <div class="value">${formatCurrency(cart.order.totalAmount)}</div>
+                                    </div>
+                                    <div class="status-item">
+                                        <div class="label">Status</div>
+                                        <div class="value">
+                                            <span class="badge badge-${cart.order.paymentStatus === 'completed' ? 'success' : 'warning'}">
+                                                ${cart.order.paymentStatus}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderJoinedCarts() {
+            const container = document.getElementById('joinedCartsContainer');
+
+            if (joinedCarts.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-users"></i>
+                        <h3>No joined carts</h3>
+                        <p>Browse and join carts near you to save on delivery</p>
+                        <a href="browse-carts.html" class="btn btn-primary">Browse Carts</a>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = joinedCarts.map(cart => {
+                const splitAmount = cart.deliveryCharge / cart.maxMembers;
+                
+                return `
+                    <div class="cart-card">
+                        <div class="cart-header">
+                            <div>
+                                <span class="platform-badge platform-${cart.platform}">${cart.platform}</span>
+                                <span class="badge badge-${cart.status === 'active' ? 'success' : cart.status === 'full' ? 'warning' : 'primary'} ml-2">${cart.status}</span>
+                            </div>
+                            <div class="cart-actions">
+                                <button class="btn btn-sm btn-secondary" onclick="viewCart('${cart._id}')">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                                ${cart.status === 'active' || cart.status === 'full' ? `
+                                    <button class="btn btn-sm btn-danger" onclick="leaveCart('${cart._id}')">
+                                        <i class="fas fa-sign-out-alt"></i> Leave
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            <div class="info-row">
+                                <span class="info-label">Created By</span>
+                                <span class="info-value">${cart.createdBy.name}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Your Split</span>
+                                <span class="info-value">${formatCurrency(splitAmount)}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Members</span>
+                                <span class="info-value">${cart.members.length}/${cart.maxMembers}</span>
+                            </div>
+                        </div>
+
+                        <div class="member-list">
+                            ${cart.members.map(member => `
+                                <div class="member-item">
+                                    <img src="${member.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=random`}" 
+                                         alt="${member.name}" class="member-avatar">
+                                    <span>${member.name}</span>
+                                    ${member._id === user._id ? '<span class="badge badge-primary">You</span>' : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        ${cart.order && cart.order.paymentDetails ? `
+                            <div class="payment-status">
+                                <h4>Your Payment</h4>
+                                <div class="status-grid">
+                                    <div class="status-item">
+                                        <div class="label">Amount</div>
+                                        <div class="value">${formatCurrency(splitAmount)}</div>
+                                    </div>
+                                    <div class="status-item">
+                                        <div class="label">Status</div>
+                                        <div class="value">
+                                            ${cart.order.paymentDetails.find(p => p.user === user._id)?.status === 'completed' ? 
+                                                '<span class="badge badge-success">Paid</span>' : 
+                                                '<span class="badge badge-warning">Pending</span>'}
+                                        </div>
+                                    </div>
+                                </div>
+                                ${cart.order.paymentDetails.find(p => p.user === user._id)?.status !== 'completed' ? `
+                                    <button class="btn btn-primary btn-full mt-2" onclick="payNow('${cart.order._id}', ${splitAmount})">
+                                        <i class="fas fa-credit-card"></i> Pay Now
+                                    </button>
+                                ` : ''}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function viewCart(cartId) {
+            window.location.href = `cart-details.html?id=${cartId}`;
+        }
+
+        async function leaveCart(cartId) {
+            if (!confirm('Are you sure you want to leave this cart?')) return;
+
+            try {
+                const response = await api.leaveCart(cartId);
+                if (response.success) {
+                    showToast('Left cart successfully', 'success');
+                    loadMyCarts();
+                }
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        }
+
+        async function deleteCart(cartId) {
+            if (!confirm('Are you sure you want to delete this cart? All members will be notified.')) return;
+
+            try {
+                const response = await api.deleteCart(cartId);
+                if (response.success) {
+                    showToast('Cart deleted successfully', 'success');
+                    loadMyCarts();
+                }
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        }
+
+        async function payNow(orderId, amount) {
+            try {
+                showToast('Initiating payment...', 'info');
+                // This would integrate with Razorpay
+                // For now, redirect to orders page
+                window.location.href = `orders.html?payment=${orderId}`;
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        }
+
+        // Load carts on page load
+        loadMyCarts();
+    </script>
+</body>
+</html>

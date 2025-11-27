@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - ShareCart</title>
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .profile-container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .profile-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .profile-sidebar {
+            position: sticky;
+            top: 80px;
+        }
+
+        .profile-card {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 16px;
+        }
+
+        .profile-name {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .profile-rating {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 20px;
+            color: #fbbf24;
+            margin-bottom: 16px;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .stat-item {
+            padding: 16px;
+            background: var(--light);
+            border-radius: 8px;
+        }
+
+        .stat-item .value {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .stat-item .label {
+            font-size: 12px;
+            color: var(--gray);
+            margin-top: 4px;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .review-item {
+            padding: 16px;
+            background: var(--light);
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+
+        .reviewer-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .reviewer-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .rating-breakdown {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .rating-category {
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .rating-category .label {
+            font-size: 12px;
+            color: var(--gray);
+        }
+
+        .rating-category .value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #fbbf24;
+        }
+
+        .edit-form {
+            display: none;
+        }
+
+        .edit-form.active {
+            display: block;
+        }
+
+        .profile-display {
+            display: block;
+        }
+
+        .profile-display.hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="dashboard.html" class="logo">
+                <i class="fas fa-shopping-cart"></i> ShareCart
+            </a>
+            <ul class="nav-links">
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="browse-carts.html">Browse Carts</a></li>
+                <li><a href="my-carts.html">My Carts</a></li>
+                <li><a href="orders.html">Orders</a></li>
+                <li><a href="profile.html" class="active">Profile</a></li>
+            </ul>
+            <div class="user-menu">
+                <span id="userName">User</span>
+                <img src="https://ui-avatars.com/api/?name=User&background=random" alt="Avatar" class="avatar" id="userAvatar">
+                <button class="btn btn-outline" onclick="api.logout()">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="profile-container">
+            <!-- Sidebar -->
+            <div class="profile-sidebar">
+                <div class="profile-card">
+                    <img id="profileAvatar" src="" alt="Profile" class="profile-avatar">
+                    <h2 class="profile-name" id="profileName">Loading...</h2>
+                    <p class="info-label" id="profileEmail"></p>
+                    <div class="profile-rating">
+                        <i class="fas fa-star"></i>
+                        <span id="profileRating">0.0</span>
+                    </div>
+
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <div class="value" id="totalCarts">0</div>
+                            <div class="label">Total Carts</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="value" id="totalOrders">0</div>
+                            <div class="label">Orders</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="value" id="totalSavings">₹0</div>
+                            <div class="label">Total Saved</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="value" id="reviewCount">0</div>
+                            <div class="label">Reviews</div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary btn-full mt-3" onclick="toggleEditMode()">
+                        <i class="fas fa-edit"></i> Edit Profile
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div>
+                <!-- Profile Information -->
+                <div class="content-card">
+                    <div class="section-header">
+                        <h3>Profile Information</h3>
+                    </div>
+
+                    <!-- Display Mode -->
+                    <div id="profileDisplay" class="profile-display">
+                        <div class="info-row">
+                            <span class="info-label">Name</span>
+                            <span class="info-value" id="displayName"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Email</span>
+                            <span class="info-value" id="displayEmail"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Phone</span>
+                            <span class="info-value" id="displayPhone"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Address</span>
+                            <span class="info-value" id="displayAddress"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">City</span>
+                            <span class="info-value" id="displayCity"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Pincode</span>
+                            <span class="info-value" id="displayPincode"></span>
+                        </div>
+                    </div>
+
+                    <!-- Edit Mode -->
+                    <form id="profileEditForm" class="edit-form">
+                        <div class="form-group">
+                            <label for="editName">Name</label>
+                            <input type="text" id="editName" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editPhone">Phone</label>
+                            <input type="tel" id="editPhone" class="form-control" pattern="[0-9]{10}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editAddress">Address</label>
+                            <input type="text" id="editAddress" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editCity">City</label>
+                            <input type="text" id="editCity" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editPincode">Pincode</label>
+                            <input type="text" id="editPincode" class="form-control" pattern="[0-9]{6}" required>
+                        </div>
+                        <div class="flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                            <button type="button" class="btn btn-outline" onclick="toggleEditMode()">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Rating Breakdown -->
+                <div class="content-card">
+                    <div class="section-header">
+                        <h3>Rating Breakdown</h3>
+                    </div>
+                    <div class="rating-breakdown">
+                        <div class="rating-category">
+                            <div class="label">Punctuality</div>
+                            <div class="value" id="punctualityRating">0.0</div>
+                        </div>
+                        <div class="rating-category">
+                            <div class="label">Communication</div>
+                            <div class="value" id="communicationRating">0.0</div>
+                        </div>
+                        <div class="rating-category">
+                            <div class="label">Reliability</div>
+                            <div class="value" id="reliabilityRating">0.0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reviews Received -->
+                <div class="content-card">
+                    <div class="section-header">
+                        <h3>Reviews Received</h3>
+                        <span class="badge badge-primary" id="reviewsCount">0</span>
+                    </div>
+                    <div id="reviewsContainer">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Change Password -->
+                <div class="content-card">
+                    <div class="section-header">
+                        <h3>Change Password</h3>
+                    </div>
+                    <form id="passwordForm">
+                        <div class="form-group">
+                            <label for="currentPassword">Current Password</label>
+                            <input type="password" id="currentPassword" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="newPassword">New Password</label>
+                            <input type="password" id="newPassword" class="form-control" minlength="6" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm New Password</label>
+                            <input type="password" id="confirmPassword" class="form-control" minlength="6" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-lock"></i> Update Password
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script>
+        if (!requireAuth()) window.location.href = 'login.html';
+
+        const user = api.getUser();
+        if (user) {
+            document.getElementById('userName').textContent = user.name;
+            document.getElementById('userAvatar').src = user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`;
+        }
+
+        let profile = null;
+        let reviews = [];
+
+        async function loadProfile() {
+            try {
+                const response = await api.getMe();
+                profile = response.data;
+                renderProfile();
+                loadReviews();
+                loadStats();
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                showToast(error.message, 'error');
+            }
+        }
+
+        function renderProfile() {
+            // Sidebar
+            document.getElementById('profileAvatar').src = profile.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name)}&background=random`;
+            document.getElementById('profileName').textContent = profile.name;
+            document.getElementById('profileEmail').textContent = profile.email;
+            document.getElementById('profileRating').textContent = profile.rating ? profile.rating.toFixed(1) : 'New';
+
+            // Display mode
+            document.getElementById('displayName').textContent = profile.name;
+            document.getElementById('displayEmail').textContent = profile.email;
+            document.getElementById('displayPhone').textContent = profile.phone;
+            document.getElementById('displayAddress').textContent = profile.location?.address || 'Not provided';
+            document.getElementById('displayCity').textContent = profile.location?.city || 'Not provided';
+            document.getElementById('displayPincode').textContent = profile.location?.pincode || 'Not provided';
+
+            // Edit form
+            document.getElementById('editName').value = profile.name;
+            document.getElementById('editPhone').value = profile.phone;
+            document.getElementById('editAddress').value = profile.location?.address || '';
+            document.getElementById('editCity').value = profile.location?.city || '';
+            document.getElementById('editPincode').value = profile.location?.pincode || '';
+
+            // Rating breakdown
+            if (profile.ratingBreakdown) {
+                document.getElementById('punctualityRating').textContent = profile.ratingBreakdown.punctuality?.toFixed(1) || '0.0';
+                document.getElementById('communicationRating').textContent = profile.ratingBreakdown.communication?.toFixed(1) || '0.0';
+                document.getElementById('reliabilityRating').textContent = profile.ratingBreakdown.reliability?.toFixed(1) || '0.0';
+            }
+        }
+
+        async function loadStats() {
+            try {
+                const [cartsRes, ordersRes] = await Promise.all([
+                    api.getMyCarts(),
+                    api.getMyOrders()
+                ]);
+
+                const carts = cartsRes.data;
+                const orders = ordersRes.data;
+
+                document.getElementById('totalCarts').textContent = carts.length;
+                document.getElementById('totalOrders').textContent = orders.length;
+
+                // Calculate total savings
+                const savings = carts.reduce((total, cart) => {
+                    const splitAmount = cart.deliveryCharge / cart.maxMembers;
+                    return total + (cart.deliveryCharge - splitAmount);
+                }, 0);
+                document.getElementById('totalSavings').textContent = formatCurrency(savings);
+
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        async function loadReviews() {
+            try {
+                const response = await api.getUserReviews(profile._id);
+                reviews = response.data;
+                document.getElementById('reviewCount').textContent = reviews.length;
+                document.getElementById('reviewsCount').textContent = reviews.length;
+                renderReviews();
+            } catch (error) {
+                console.error('Error loading reviews:', error);
+            }
+        }
+
+        function renderReviews() {
+            const container = document.getElementById('reviewsContainer');
+
+            if (reviews.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-star"></i>
+                        <h3>No reviews yet</h3>
+                        <p>Complete orders to receive reviews from other users</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = reviews.map(review => `
+                <div class="review-item">
+                    <div class="review-header">
+                        <div class="reviewer-info">
+                            <img src="${review.reviewer.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(review.reviewer.name)}&background=random`}" 
+                                 alt="${review.reviewer.name}" class="reviewer-avatar">
+                            <div>
+                                <strong>${review.anonymous ? 'Anonymous' : review.reviewer.name}</strong>
+                                <br>
+                                <small class="info-label">${formatDate(review.createdAt)}</small>
+                            </div>
+                        </div>
+                        <div class="profile-rating">
+                            <i class="fas fa-star"></i>
+                            <span>${review.overallRating.toFixed(1)}</span>
+                        </div>
+                    </div>
+                    ${review.comment ? `<p>${review.comment}</p>` : ''}
+                    <div class="rating-breakdown">
+                        <div class="rating-category">
+                            <div class="label">Punctuality</div>
+                            <div class="value">${review.punctuality}/5</div>
+                        </div>
+                        <div class="rating-category">
+                            <div class="label">Communication</div>
+                            <div class="value">${review.communication}/5</div>
+                        </div>
+                        <div class="rating-category">
+                            <div class="label">Reliability</div>
+                            <div class="value">${review.reliability}/5</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleEditMode() {
+            const display = document.getElementById('profileDisplay');
+            const form = document.getElementById('profileEditForm');
+
+            display.classList.toggle('hidden');
+            form.classList.toggle('active');
+        }
+
+        // Handle profile update
+        document.getElementById('profileEditForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const updateData = {
+                name: document.getElementById('editName').value,
+                phone: document.getElementById('editPhone').value,
+                location: {
+                    address: document.getElementById('editAddress').value,
+                    city: document.getElementById('editCity').value,
+                    pincode: document.getElementById('editPincode').value,
+                    coordinates: profile.location?.coordinates || [0, 0]
+                }
+            };
+
+            try {
+                const response = await api.updateProfile(updateData);
+                if (response.success) {
+                    showToast('Profile updated successfully', 'success');
+                    profile = response.data;
+                    renderProfile();
+                    toggleEditMode();
+                    
+                    // Update stored user
+                    localStorage.setItem('user', JSON.stringify(profile));
+                }
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        });
+
+        // Handle password change
+        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (newPassword !== confirmPassword) {
+                showToast('Passwords do not match', 'error');
+                return;
+            }
+
+            try {
+                const response = await api.updatePassword({ currentPassword, newPassword });
+                if (response.success) {
+                    showToast('Password updated successfully', 'success');
+                    document.getElementById('passwordForm').reset();
+                }
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        });
+
+        // Load profile on page load
+        loadProfile();
+    </script>
+</body>
+</html>

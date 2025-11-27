@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - ShareCart</title>
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+
+        .stat-icon.blue { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .stat-icon.green { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .stat-icon.orange { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+        .stat-icon.purple { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+
+        .stat-content h3 {
+            font-size: 28px;
+            color: var(--dark);
+            margin-bottom: 4px;
+        }
+
+        .stat-content p {
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .action-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            text-align: center;
+            text-decoration: none;
+            color: var(--dark);
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .action-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+
+        .action-card i {
+            font-size: 40px;
+            color: var(--primary-color);
+            margin-bottom: 12px;
+        }
+
+        .action-card h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .action-card p {
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-header h2 {
+            font-size: 24px;
+            color: var(--dark);
+        }
+
+        .cart-item {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 16px;
+        }
+
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .cart-platform {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .platform-blinkit { background: #ffe5cc; color: #f97316; }
+        .platform-zepto { background: #dbeafe; color: #2563eb; }
+        .platform-swiggy { background: #fed7d7; color: #dc2626; }
+        .platform-bigbasket { background: #d1fae5; color: #059669; }
+
+        .cart-details {
+            display: flex;
+            gap: 24px;
+            margin-top: 12px;
+        }
+
+        .cart-detail {
+            flex: 1;
+        }
+
+        .cart-detail label {
+            display: block;
+            font-size: 12px;
+            color: var(--gray);
+            margin-bottom: 4px;
+        }
+
+        .cart-detail strong {
+            font-size: 16px;
+            color: var(--dark);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="dashboard.html" class="logo">
+                <i class="fas fa-shopping-cart"></i> ShareCart
+            </a>
+            <ul class="nav-menu">
+                <li><a href="dashboard.html" class="active">Dashboard</a></li>
+                <li><a href="shop.html">Shop Items</a></li>
+                <li><a href="shared-carts.html">Shared Carts</a></li>
+                <li><a href="orders.html">Orders</a></li>
+                <li><a href="profile.html">Profile</a></li>
+            </ul>
+            <div class="user-menu">
+                <span id="userName">Loading...</span>
+                <img src="https://ui-avatars.com/api/?name=User&background=random" alt="Avatar" class="avatar" id="userAvatar">
+                <button class="btn btn-outline" onclick="api.logout()">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="page-header">
+            <h1>Welcome back, <span id="userNameDisplay">User</span>! 👋</h1>
+            <p>Here's what's happening with your carts today</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon blue">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="activeCarts">0</h3>
+                    <p>Active Carts</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon green">
+                    <i class="fas fa-rupee-sign"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="totalSavings">₹0</h3>
+                    <p>Total Savings</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon orange">
+                    <i class="fas fa-box"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="totalOrders">0</h3>
+                    <p>Total Orders</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon purple">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="userRating">5.0</h3>
+                    <p>Your Rating</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="section-header">
+            <h2>Quick Actions</h2>
+        </div>
+        <div class="quick-actions">
+            <a href="browse-carts.html" class="action-card">
+                <i class="fas fa-search"></i>
+                <h3>Browse Carts</h3>
+                <p>Find carts near you</p>
+            </a>
+            <a href="browse-carts.html#create" class="action-card">
+                <i class="fas fa-plus-circle"></i>
+                <h3>Create Cart</h3>
+                <p>Start a new cart</p>
+            </a>
+            <a href="my-carts.html" class="action-card">
+                <i class="fas fa-list"></i>
+                <h3>My Carts</h3>
+                <p>View your carts</p>
+            </a>
+            <a href="orders.html" class="action-card">
+                <i class="fas fa-history"></i>
+                <h3>Order History</h3>
+                <p>View past orders</p>
+            </a>
+        </div>
+
+        <!-- Recent Carts -->
+        <div class="section-header">
+            <h2>Your Recent Carts</h2>
+            <a href="my-carts.html" class="btn btn-outline">View All</a>
+        </div>
+
+        <div id="recentCarts">
+            <div class="loading">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script>
+        // Check authentication
+        if (!requireAuth()) {
+            window.location.href = 'login.html';
+        }
+
+        const user = api.getUser();
+        
+        // Display user info
+        if (user) {
+            document.getElementById('userName').textContent = user.name;
+            document.getElementById('userNameDisplay').textContent = user.name.split(' ')[0];
+            document.getElementById('userAvatar').src = user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`;
+            
+            // Display stats
+            document.getElementById('totalSavings').textContent = formatCurrency(user.totalSavings || 0);
+            document.getElementById('totalOrders').textContent = user.totalOrders || 0;
+            document.getElementById('userRating').textContent = (user.rating || 5.0).toFixed(1);
+        }
+
+        // Load recent carts
+        async function loadRecentCarts() {
+            try {
+                const response = await api.getMyCarts();
+                const carts = response.data.slice(0, 5); // Show only 5 recent
+                
+                document.getElementById('activeCarts').textContent = carts.length;
+
+                const container = document.getElementById('recentCarts');
+                
+                if (carts.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-shopping-cart"></i>
+                            <h3>No carts yet</h3>
+                            <p>Start by browsing or creating a new cart</p>
+                            <a href="shop.html" class="btn btn-primary">Start Shopping</a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = carts.map(cart => `
+                    <div class="cart-item">
+                        <div class="cart-header">
+                            <div>
+                                <span class="cart-platform platform-${cart.platform}">${cart.platform}</span>
+                                <span class="badge badge-${cart.status === 'active' ? 'success' : 'warning'}">${cart.status}</span>
+                            </div>
+                            <a href="cart-details.html?id=${cart._id}" class="btn btn-outline">View Details</a>
+                        </div>
+                        <div class="cart-details">
+                            <div class="cart-detail">
+                                <label>Location</label>
+                                <strong>${cart.location.city}</strong>
+                            </div>
+                            <div class="cart-detail">
+                                <label>Members</label>
+                                <strong>${cart.members.length}/${cart.maxMembers}</strong>
+                            </div>
+                            <div class="cart-detail">
+                                <label>Delivery Charge</label>
+                                <strong>${formatCurrency(cart.deliveryCharge)}</strong>
+                            </div>
+                            <div class="cart-detail">
+                                <label>Your Split</label>
+                                <strong>${formatCurrency(cart.deliveryCharge / cart.members.length)}</strong>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                console.error('Error loading carts:', error);
+                document.getElementById('recentCarts').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Error loading carts</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Load data
+        loadRecentCarts();
+    </script>
+</body>
+</html>
