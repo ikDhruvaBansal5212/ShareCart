@@ -203,10 +203,10 @@
                 const platformFilter = document.getElementById('platformFilter').value;
 
                 if (statusFilter) {
-                    orders = orders.filter(o => o.paymentStatus === statusFilter);
+                    orders = orders.filter(o => o.status === statusFilter || (o.members && o.members[0]?.paymentStatus === statusFilter));
                 }
                 if (platformFilter) {
-                    orders = orders.filter(o => o.cart && o.cart.platform === platformFilter);
+                    orders = orders.filter(o => o.platform === platformFilter);
                 }
 
                 renderOrders(orders);
@@ -232,10 +232,9 @@
             }
 
             container.innerHTML = orders.map(order => {
-                const cart = order.cart;
-                const splitAmount = cart ? cart.deliveryCharge / cart.maxMembers : 0;
-                const userPayment = order.paymentDetails?.find(p => p.user === user._id);
-                const paidCount = order.paymentDetails?.filter(p => p.status === 'completed').length || 0;
+                const userMember = order.members?.find(m => m.user?._id === user._id || m.user === user._id) || order.members?.[0];
+                const paymentStatus = userMember?.paymentStatus || order.status;
+                const splitAmount = order.deliveryCharge / (order.members?.length || 1);
 
                 return `
                     <div class="order-card">
@@ -249,45 +248,69 @@
                                 </div>
                             </div>
                             <div>
-                                ${cart ? `<span class="platform-badge platform-${cart.platform}">${cart.platform}</span>` : ''}
-                                <span class="badge badge-${order.paymentStatus === 'completed' ? 'success' : order.paymentStatus === 'failed' ? 'danger' : 'warning'} ml-2">
-                                    ${order.paymentStatus}
+                                <span class="platform-badge platform-${order.platform}">${order.platform}</span>
+                                <span class="badge badge-${order.status === 'delivered' ? 'success' : order.status === 'cancelled' ? 'danger' : 'warning'} ml-2">
+                                    ${order.status}
                                 </span>
                             </div>
                         </div>
 
-                        ${cart ? `
-                            <div class="order-body">
-                                <div class="order-info-item">
-                                    <div class="label">Delivery Charge</div>
-                                    <div class="value">${formatCurrency(cart.deliveryCharge)}</div>
-                                </div>
-                                <div class="order-info-item">
-                                    <div class="label">Your Split</div>
-                                    <div class="value">${formatCurrency(splitAmount)}</div>
-                                </div>
-                                <div class="order-info-item">
-                                    <div class="label">Members</div>
-                                    <div class="value">${cart.members.length}/${cart.maxMembers}</div>
-                                </div>
-                                <div class="order-info-item">
-                                    <div class="label">Location</div>
-                                    <div class="value">${cart.location.city}</div>
-                                </div>
+                        <div class="order-body">
+                            <div class="order-info-item">
+                                <div class="label">Total Amount</div>
+                                <div class="value">${formatCurrency(order.totalAmount)}</div>
                             </div>
+                            <div class="order-info-item">
+                                <div class="label">Delivery Charge</div>
+                                <div class="value">${formatCurrency(order.deliveryCharge)}</div>
+                            </div>
+                            <div class="order-info-item">
+                                <div class="label">Your Split</div>
+                                <div class="value">${formatCurrency(splitAmount)}</div>
+                            </div>
+                            <div class="order-info-item">
+                                <div class="label">Items</div>
+                                <div class="value">${order.items?.length || 0} items</div>
+                            </div>
+                        </div>
 
-                            <!-- Members Payment Status -->
-                            <div class="members-info">
-                                <h4>Payment Status</h4>
-                                ${order.paymentDetails ? order.paymentDetails.map(payment => `
-                                    <div class="member-payment">
-                                        <span>
-                                            ${payment.userName || 'Member'}
-                                            ${payment.user === user._id ? '<span class="badge badge-primary ml-2">You</span>' : ''}
-                                        </span>
-                                        <span class="badge badge-${payment.status === 'completed' ? 'success' : payment.status === 'failed' ? 'danger' : 'warning'}">
-                                            ${payment.status}
-                                        </span>
+                        ${order.items && order.items.length > 0 ? `
+                        <div class="order-items">
+                            <h4>Order Items</h4>
+                            <div class="items-list">
+                                ${order.items.map(item => `
+                                    <div class="order-item">
+                                        <span>${item.name} × ${item.quantity}</span>
+                                        <span>${formatCurrency(item.price * item.quantity)}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        ` : ''}
+
+                        ${order.deliveryLocation ? `
+                        <div class="delivery-info">
+                            <h4>Delivery Address</h4>
+                            <p><i class="fas fa-map-marker-alt"></i> ${order.deliveryLocation.address}, ${order.deliveryLocation.city} - ${order.deliveryLocation.pincode}</p>
+                        </div>
+                        ` : ''}
+
+                        <div class="order-footer">
+                            <span class="payment-status">
+                                Payment: <span class="badge badge-${paymentStatus === 'paid' || paymentStatus === 'completed' ? 'success' : 'warning'}">
+                                    ${paymentStatus}
+                                </span>
+                            </span>
+                            ${order.status === 'pending' || order.status === 'confirmed' ? `
+                                <button class="btn btn-sm btn-outline" onclick="trackOrder('${order._id}')">
+                                    <i class="fas fa-truck"></i> Track Order
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
                                     </div>
                                 `).join('') : '<p class="text-center">No payment details</p>'}
                             </div>

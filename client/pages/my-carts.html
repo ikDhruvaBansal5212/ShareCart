@@ -203,8 +203,8 @@
                 const response = await api.getMyCarts();
                 const carts = response.data;
 
-                createdCarts = carts.filter(c => c.createdBy._id === user._id);
-                joinedCarts = carts.filter(c => c.createdBy._id !== user._id);
+                createdCarts = carts.filter(c => c.creator && c.creator._id === user._id);
+                joinedCarts = carts.filter(c => c.creator && c.creator._id !== user._id);
 
                 renderCreatedCarts();
                 renderJoinedCarts();
@@ -267,14 +267,16 @@
                         </div>
 
                         <div class="member-list">
-                            ${cart.members.map(member => `
+                            ${cart.members.map(member => {
+                                const memberUser = member.user || member;
+                                return `
                                 <div class="member-item">
-                                    <img src="${member.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=random`}" 
-                                         alt="${member.name}" class="member-avatar">
-                                    <span>${member.name}</span>
-                                    ${member._id === user._id ? '<span class="badge badge-primary">You</span>' : ''}
+                                    <img src="${memberUser.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(memberUser.name || 'User')}&background=random`}" 
+                                         alt="${memberUser.name || 'User'}" class="member-avatar">
+                                    <span>${memberUser.name || 'User'}</span>
+                                    ${memberUser._id === user._id ? '<span class="badge badge-primary">You</span>' : ''}
                                 </div>
-                            `).join('')}
+                            `}).join('')}
                         </div>
 
                         ${cart.order ? `
@@ -341,7 +343,7 @@
                         <div class="card-body">
                             <div class="info-row">
                                 <span class="info-label">Created By</span>
-                                <span class="info-value">${cart.createdBy.name}</span>
+                                <span class="info-value">${cart.creator ? cart.creator.name : 'Unknown'}</span>
                             </div>
                             <div class="info-row">
                                 <span class="info-label">Your Split</span>
@@ -354,14 +356,16 @@
                         </div>
 
                         <div class="member-list">
-                            ${cart.members.map(member => `
+                            ${cart.members.map(member => {
+                                const memberUser = member.user || member;
+                                return `
                                 <div class="member-item">
-                                    <img src="${member.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=random`}" 
-                                         alt="${member.name}" class="member-avatar">
-                                    <span>${member.name}</span>
-                                    ${member._id === user._id ? '<span class="badge badge-primary">You</span>' : ''}
+                                    <img src="${memberUser.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(memberUser.name || 'User')}&background=random`}" 
+                                         alt="${memberUser.name || 'User'}" class="member-avatar">
+                                    <span>${memberUser.name || 'User'}</span>
+                                    ${memberUser._id === user._id ? '<span class="badge badge-primary">You</span>' : ''}
                                 </div>
-                            `).join('')}
+                            `}).join('')}
                         </div>
 
                         ${cart.order && cart.order.paymentDetails ? `

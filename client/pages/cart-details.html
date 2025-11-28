@@ -239,8 +239,11 @@
         function renderCartDetails() {
             const splitAmount = cart.deliveryCharge / cart.maxMembers;
             const savings = cart.deliveryCharge - splitAmount;
-            const isCreator = cart.createdBy._id === user._id;
-            const isMember = cart.members.some(m => m._id === user._id);
+            const isCreator = cart.creator && cart.creator._id === user._id;
+            const isMember = cart.members.some(m => {
+                const memberId = m.user ? m.user._id : m._id;
+                return memberId === user._id;
+            });
 
             document.getElementById('cartDetailsContainer').innerHTML = `
                 <div class="cart-detail-container">
@@ -259,13 +262,13 @@
 
                             <!-- Creator Info -->
                             <div class="creator-info">
-                                <img src="${cart.createdBy.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(cart.createdBy.name)}&background=random`}" 
-                                     alt="${cart.createdBy.name}" class="creator-avatar">
+                                <img src="${cart.creator?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(cart.creator?.name || 'User')}&background=random`}" 
+                                     alt="${cart.creator?.name || 'User'}" class="creator-avatar">
                                 <div class="creator-details">
-                                    <h3>${cart.createdBy.name} ${isCreator ? '(You)' : ''}</h3>
+                                    <h3>${cart.creator?.name || 'User'} ${isCreator ? '(You)' : ''}</h3>
                                     <div class="rating-display">
                                         <i class="fas fa-star"></i>
-                                        <span>${cart.createdBy.rating ? cart.createdBy.rating.toFixed(1) : 'New'}</span>
+                                        <span>${cart.creator?.rating ? cart.creator.rating.toFixed(1) : 'New'}</span>
                                     </div>
                                     <small class="info-label">${cart.location.city}</small>
                                 </div>
@@ -296,25 +299,27 @@
                             <!-- Members Section -->
                             <div class="members-section">
                                 <h3>Members</h3>
-                                ${cart.members.map(member => `
+                                ${cart.members.map(member => {
+                                    const memberUser = member.user || member;
+                                    return `
                                     <div class="member-card">
                                         <div class="member-info">
-                                            <img src="${member.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=random`}" 
-                                                 alt="${member.name}" class="member-avatar-small">
+                                            <img src="${memberUser.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(memberUser.name || 'User')}&background=random`}" 
+                                                 alt="${memberUser.name || 'User'}" class="member-avatar-small">
                                             <div>
-                                                <strong>${member.name}</strong>
-                                                ${member._id === cart.createdBy._id ? '<span class="badge badge-primary ml-2">Creator</span>' : ''}
-                                                ${member._id === user._id ? '<span class="badge badge-success ml-2">You</span>' : ''}
+                                                <strong>${memberUser.name || 'User'}</strong>
+                                                ${cart.creator && memberUser._id === cart.creator._id ? '<span class="badge badge-primary ml-2">Creator</span>' : ''}
+                                                ${memberUser._id === user._id ? '<span class="badge badge-success ml-2">You</span>' : ''}
                                                 <br>
-                                                <small class="info-label">${member.phone}</small>
+                                                <small class="info-label">${memberUser.phone || ''}</small>
                                             </div>
                                         </div>
                                         <div class="rating-display">
                                             <i class="fas fa-star"></i>
-                                            <span>${member.rating ? member.rating.toFixed(1) : 'New'}</span>
+                                            <span>${memberUser.rating ? memberUser.rating.toFixed(1) : 'New'}</span>
                                         </div>
                                     </div>
-                                `).join('')}
+                                `}).join('')}
                             </div>
 
                             <!-- Chat Section -->
@@ -510,7 +515,7 @@
         }
 
         function writeReview() {
-            window.location.href = `profile.html?review=${cart.createdBy._id}`;
+            window.location.href = `profile.html?review=${cart.creator?._id}`;
         }
 
         function shareCart() {

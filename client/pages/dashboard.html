@@ -157,22 +157,17 @@
 <body>
     <!-- Navigation -->
     <nav class="navbar">
-        <div class="nav-container">
-            <a href="dashboard.html" class="logo">
-                <i class="fas fa-shopping-cart"></i> ShareCart
-            </a>
-            <ul class="nav-menu">
-                <li><a href="dashboard.html" class="active">Dashboard</a></li>
-                <li><a href="shop.html">Shop Items</a></li>
-                <li><a href="shared-carts.html">Shared Carts</a></li>
-                <li><a href="orders.html">Orders</a></li>
-                <li><a href="profile.html">Profile</a></li>
-            </ul>
-            <div class="user-menu">
-                <span id="userName">Loading...</span>
-                <img src="https://ui-avatars.com/api/?name=User&background=random" alt="Avatar" class="avatar" id="userAvatar">
-                <button class="btn btn-outline" onclick="api.logout()">Logout</button>
-            </div>
+        <div class="nav-brand">
+            <i class="fas fa-shopping-cart"></i>
+            <span>ShareCart</span>
+        </div>
+        <div class="nav-links">
+            <a href="dashboard.html" class="active"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="shop.html"><i class="fas fa-store"></i> Shop</a>
+            <a href="shared-carts.html"><i class="fas fa-users"></i> Shared Carts</a>
+            <a href="orders.html"><i class="fas fa-receipt"></i> Orders</a>
+            <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
+            <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </div>
     </nav>
 
@@ -277,9 +272,7 @@
         
         // Display user info
         if (user) {
-            document.getElementById('userName').textContent = user.name;
             document.getElementById('userNameDisplay').textContent = user.name.split(' ')[0];
-            document.getElementById('userAvatar').src = user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`;
             
             // Display stats
             document.getElementById('totalSavings').textContent = formatCurrency(user.totalSavings || 0);
@@ -349,6 +342,12 @@
                     </div>
                 `;
             }
+        }
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = '../index.html';
         }
 
         // Load data

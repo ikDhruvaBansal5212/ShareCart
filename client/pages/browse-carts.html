@@ -138,6 +138,53 @@
             transform: scale(1.02);
         }
 
+        .creator-info-small {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            background: #f9fafb;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .creator-avatar-xs {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .creator-name {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 14px;
+        }
+
+        .rating-small {
+            margin-left: auto;
+            color: #f59e0b;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .cart-notes {
+            display: flex;
+            align-items: start;
+            gap: 8px;
+            padding: 12px;
+            background: #fef3c7;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .cart-notes i {
+            color: #f59e0b;
+            margin-top: 2px;
+        }
+
         /* Share Modal Styles */
         .share-modal {
             display: none;
@@ -557,8 +604,11 @@
             if (city) filters.city = city;
 
             try {
+                console.log('Loading carts with filters:', filters);
                 const response = await api.getCarts(filters);
+                console.log('API Response:', response);
                 const carts = response.data;
+                console.log('Carts received:', carts.length);
 
                 const container = document.getElementById('cartsContainer');
 
@@ -577,16 +627,33 @@
                 container.innerHTML = `<div class="card-grid">${carts.map(cart => {
                     const savings = cart.deliveryCharge - (cart.deliveryCharge / cart.maxMembers);
                     const fillPercent = (cart.members.length / cart.maxMembers) * 100;
+                    const creator = cart.creator || {};
 
                     return `
                         <div class="cart-card">
                             <div class="cart-card-header">
                                 <div>
                                     <span class="platform-badge platform-${cart.platform}">${cart.platform}</span>
-                                    ${cart.distance ? `<span class="distance-badge ml-2">${cart.distance} km away</span>` : ''}
+                                    ${cart.distance ? `<span class="distance-badge ml-2">${cart.distance.toFixed(1)} km away</span>` : ''}
                                 </div>
                                 <span class="badge badge-${cart.status === 'active' ? 'success' : cart.status === 'full' ? 'warning' : 'primary'}">${cart.status}</span>
                             </div>
+
+                            ${creator.name ? `
+                            <div class="creator-info-small">
+                                <img src="${creator.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(creator.name)}&background=random`}" 
+                                     alt="${creator.name}" class="creator-avatar-xs">
+                                <span class="creator-name">${creator.name}</span>
+                                ${creator.rating ? `<span class="rating-small"><i class="fas fa-star"></i> ${creator.rating.toFixed(1)}</span>` : ''}
+                            </div>
+                            ` : ''}
+
+                            ${cart.notes ? `
+                            <div class="cart-notes">
+                                <i class="fas fa-sticky-note"></i>
+                                <span>${cart.notes}</span>
+                            </div>
+                            ` : ''}
 
                             <div class="cart-info">
                                 <div class="info-row">
@@ -619,10 +686,10 @@
 
                             <div class="cart-actions">
                                 ${cart.status === 'active' ? `
-                                    <button class="btn btn-primary" style="flex: 2;" onclick="joinCart('${cart._id}')">
-                                        <i class="fas fa-user-plus"></i> Join Cart
+                                    <button class="btn btn-primary" style="flex: 2;" onclick="viewCart('${cart._id}')">
+                                        <i class="fas fa-eye"></i> View Details
                                     </button>
-                                    <button class="btn-share" onclick="openShareModal('${cart._id}', ${JSON.stringify(cart).replace(/"/g, '&quot;')})">
+                                    <button class="btn-share" onclick="openShareModal('${cart._id}')">
                                         <i class="fas fa-share-nodes"></i>
                                     </button>
                                 ` : `
@@ -648,6 +715,21 @@
                 const response = await api.joinCart(cartId);
                 if (response.success) {
                     showToast('Successfully joined cart!', 'success');
+                    setTimeout(() => {
+                        window.location.href = `cart-details.html?id=${cartId}`;
+                    }, 1000);
+                }
+            } catch (error) {
+                console.error('Error joining cart:', error);
+                showToast(error.message, 'error');
+            }
+        }
+
+        function viewCart(cartId) {
+            window.location.href = `cart-details.html?id=${cartId}`;
+        }
+
+        function openShareModal(cartId) {
                     loadCarts();
                     setTimeout(() => {
                         window.location.href = `cart-details.html?id=${cartId}`;

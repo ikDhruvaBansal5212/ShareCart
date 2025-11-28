@@ -208,19 +208,30 @@
         }
 
         .add-to-cart-btn {
-            flex: 1;
-            background: var(--primary);
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 10px;
+            padding: 12px 16px;
             border-radius: 8px;
-            font-weight: 600;
+            font-weight: 700;
+            font-size: 15px;
             cursor: pointer;
             transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            letter-spacing: 0.5px;
+            opacity: 1;
+            visibility: visible;
         }
 
         .add-to-cart-btn:hover {
-            background: var(--primary-dark);
+            background: linear-gradient(135deg, #5a67d8 0%, #6b3fa0 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+        }
+
+        .add-to-cart-btn:active {
+            transform: translateY(0);
         }
 
         .cart-actions {
@@ -345,6 +356,238 @@
             margin-bottom: 16px;
             opacity: 0.3;
         }
+
+        /* Checkout Modal Styles */
+        .checkout-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .checkout-modal.active {
+            display: flex;
+        }
+
+        .checkout-content {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .checkout-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .checkout-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 32px;
+            position: relative;
+        }
+
+        .checkout-steps::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--border);
+            z-index: 0;
+        }
+
+        .step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            border: 2px solid var(--border);
+            margin: 0 auto 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .step.active .step-circle {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .step.completed .step-circle {
+            background: #10b981;
+            color: white;
+            border-color: #10b981;
+        }
+
+        .step-label {
+            font-size: 12px;
+            color: var(--gray);
+            font-weight: 500;
+        }
+
+        .step.active .step-label {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .checkout-section {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .checkout-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .order-summary {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            font-size: 18px;
+            color: var(--primary);
+            padding-top: 16px;
+        }
+
+        .address-card {
+            border: 2px solid var(--border);
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .address-card:hover {
+            border-color: var(--primary);
+            background: #f0f9ff;
+        }
+
+        .address-card.selected {
+            border-color: var(--primary);
+            background: #f0f9ff;
+        }
+
+        .payment-option {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border: 2px solid var(--border);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .payment-option:hover {
+            border-color: var(--primary);
+            background: #f0f9ff;
+        }
+
+        .payment-option.selected {
+            border-color: var(--primary);
+            background: #f0f9ff;
+        }
+
+        .payment-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            background: white;
+        }
+
+        .payment-details {
+            flex: 1;
+        }
+
+        .payment-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .payment-desc {
+            font-size: 13px;
+            color: var(--gray);
+        }
+
+        .checkout-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .success-animation {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .success-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 24px;
+            border-radius: 50%;
+            background: #10b981;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            animation: scaleIn 0.5s;
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0); }
+            to { transform: scale(1); }
+        }
     </style>
 </head>
 <body>
@@ -447,51 +690,226 @@
         </div>
     </div>
 
+    <!-- Checkout Modal -->
+    <div class="checkout-modal" id="checkoutModal">
+        <div class="checkout-content">
+            <div class="checkout-header">
+                <h2 style="margin: 0;">Checkout</h2>
+                <button class="btn btn-outline" onclick="closeCheckout()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Progress Steps -->
+            <div class="checkout-steps">
+                <div class="step active" id="step1">
+                    <div class="step-circle">1</div>
+                    <div class="step-label">Cart Review</div>
+                </div>
+                <div class="step" id="step2">
+                    <div class="step-circle">2</div>
+                    <div class="step-label">Delivery</div>
+                </div>
+                <div class="step" id="step3">
+                    <div class="step-circle">3</div>
+                    <div class="step-label">Payment</div>
+                </div>
+                <div class="step" id="step4">
+                    <div class="step-circle">4</div>
+                    <div class="step-label">Confirm</div>
+                </div>
+            </div>
+
+            <!-- Step 1: Cart Review -->
+            <div class="checkout-section active" id="section1">
+                <h3>Review Your Order</h3>
+                <div id="checkoutCartItems"></div>
+                <div class="order-summary">
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <span>₹<span id="checkoutSubtotal">0</span></span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Delivery Charge</span>
+                        <span id="deliveryChargeDisplay">₹50</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Total Amount</span>
+                        <span>₹<span id="checkoutTotal">0</span></span>
+                    </div>
+                </div>
+                <div class="checkout-actions">
+                    <button class="btn btn-primary btn-full" onclick="nextStep(2)">
+                        Continue to Delivery <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 2: Delivery Address -->
+            <div class="checkout-section" id="section2">
+                <h3>Delivery Address</h3>
+                <div id="addressList">
+                    <!-- Address will be loaded here -->
+                </div>
+                <button class="btn btn-outline btn-full" onclick="addNewAddress()" style="margin-top: 12px;">
+                    <i class="fas fa-plus"></i> Add New Address
+                </button>
+                <div class="checkout-actions">
+                    <button class="btn btn-outline" onclick="previousStep(1)">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    <button class="btn btn-primary" onclick="nextStep(3)" style="flex: 1;">
+                        Continue to Payment <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 3: Payment Method -->
+            <div class="checkout-section" id="section3">
+                <h3>Select Payment Method</h3>
+                <div class="payment-option" onclick="selectPayment('cod')">
+                    <div class="payment-icon" style="background: #10b981; color: white;">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="payment-details">
+                        <div class="payment-name">Cash on Delivery</div>
+                        <div class="payment-desc">Pay when you receive your order</div>
+                    </div>
+                    <input type="radio" name="payment" value="cod" checked>
+                </div>
+
+                <div class="payment-option" onclick="selectPayment('upi')">
+                    <div class="payment-icon" style="background: #667eea; color: white;">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <div class="payment-details">
+                        <div class="payment-name">UPI Payment</div>
+                        <div class="payment-desc">Google Pay, PhonePe, Paytm, etc.</div>
+                    </div>
+                    <input type="radio" name="payment" value="upi">
+                </div>
+
+                <div class="payment-option" onclick="selectPayment('card')">
+                    <div class="payment-icon" style="background: #f59e0b; color: white;">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <div class="payment-details">
+                        <div class="payment-name">Credit/Debit Card</div>
+                        <div class="payment-desc">Visa, Mastercard, RuPay</div>
+                    </div>
+                    <input type="radio" name="payment" value="card">
+                </div>
+
+                <div class="payment-option" onclick="selectPayment('netbanking')">
+                    <div class="payment-icon" style="background: #ef4444; color: white;">
+                        <i class="fas fa-university"></i>
+                    </div>
+                    <div class="payment-details">
+                        <div class="payment-name">Net Banking</div>
+                        <div class="payment-desc">All major banks supported</div>
+                    </div>
+                    <input type="radio" name="payment" value="netbanking">
+                </div>
+
+                <div class="payment-option" onclick="selectPayment('wallet')">
+                    <div class="payment-icon" style="background: #8b5cf6; color: white;">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="payment-details">
+                        <div class="payment-name">Digital Wallet</div>
+                        <div class="payment-desc">Paytm, Amazon Pay, etc.</div>
+                    </div>
+                    <input type="radio" name="payment" value="wallet">
+                </div>
+
+                <div class="checkout-actions">
+                    <button class="btn btn-outline" onclick="previousStep(2)">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    <button class="btn btn-primary" onclick="nextStep(4)" style="flex: 1;">
+                        Review Order <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 4: Order Confirmation -->
+            <div class="checkout-section" id="section4">
+                <div id="orderConfirmation">
+                    <!-- Order details will be shown here -->
+                </div>
+                <div class="checkout-actions">
+                    <button class="btn btn-outline" onclick="previousStep(3)">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    <button class="btn btn-success" onclick="placeOrder()" style="flex: 1;">
+                        <i class="fas fa-check-circle"></i> Place Order
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 5: Success -->
+            <div class="checkout-section" id="section5">
+                <div class="success-animation">
+                    <div class="success-icon">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <h2>Order Placed Successfully!</h2>
+                    <p style="color: var(--gray); margin: 16px 0;">Your order has been confirmed and will be delivered soon.</p>
+                    <p style="font-weight: 600; color: var(--primary);">Order ID: #<span id="orderId"></span></p>
+                    <div style="display: flex; gap: 12px; margin-top: 32px;">
+                        <button class="btn btn-outline" onclick="closeCheckout()">Continue Shopping</button>
+                        <button class="btn btn-primary" onclick="viewOrders()">View Orders</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="../js/api.js"></script>
     <script>
-        // Sample items database
+        // Sample items database with real images
         const items = [
             // Snacks
-            { id: 1, name: "Lays Classic Chips", brand: "Lays", price: 20, category: "snacks", image: "🍟" },
-            { id: 2, name: "Kurkure Masala Munch", brand: "Kurkure", price: 20, category: "snacks", image: "🌶️" },
-            { id: 3, name: "Haldiram's Bhujia", brand: "Haldiram's", price: 40, category: "snacks", image: "🥜" },
-            { id: 4, name: "Bingo Mad Angles", brand: "Bingo", price: 20, category: "snacks", image: "🔺" },
-            { id: 5, name: "Parle-G Biscuits", brand: "Parle", price: 10, category: "snacks", image: "🍪" },
-            { id: 6, name: "Britannia Good Day", brand: "Britannia", price: 30, category: "snacks", image: "🍪" },
-            { id: 7, name: "Hide & Seek Cookies", brand: "Parle", price: 35, category: "snacks", image: "🍪" },
-            { id: 8, name: "Maggi Noodles 4-Pack", brand: "Maggi", price: 56, category: "snacks", image: "🍜" },
+            { id: 1, name: "Lays Classic Chips", brand: "Lays", price: 20, category: "snacks", image: "https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=400&h=400&fit=crop" },
+            { id: 2, name: "Kurkure Masala Munch", brand: "Kurkure", price: 20, category: "snacks", image: "https://images.unsplash.com/photo-1613919113640-25732ec5e61f?w=400&h=400&fit=crop" },
+            { id: 3, name: "Haldiram's Bhujia", brand: "Haldiram's", price: 40, category: "snacks", image: "https://images.unsplash.com/photo-1599490659213-e2b9527bd087?w=400&h=400&fit=crop" },
+            { id: 4, name: "Bingo Mad Angles", brand: "Bingo", price: 20, category: "snacks", image: "https://images.unsplash.com/photo-1621939514649-280e2ee25f60?w=400&h=400&fit=crop" },
+            { id: 5, name: "Parle-G Biscuits", brand: "Parle", price: 10, category: "snacks", image: "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400&h=400&fit=crop" },
+            { id: 6, name: "Britannia Good Day", brand: "Britannia", price: 30, category: "snacks", image: "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=400&h=400&fit=crop" },
+            { id: 7, name: "Hide & Seek Cookies", brand: "Parle", price: 35, category: "snacks", image: "https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?w=400&h=400&fit=crop" },
+            { id: 8, name: "Maggi Noodles 4-Pack", brand: "Maggi", price: 56, category: "snacks", image: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400&h=400&fit=crop" },
             
             // Beverages
-            { id: 9, name: "Coca Cola 750ml", brand: "Coca Cola", price: 40, category: "beverages", image: "🥤" },
-            { id: 10, name: "Pepsi 750ml", brand: "Pepsi", price: 40, category: "beverages", image: "🥤" },
-            { id: 11, name: "Sprite 750ml", brand: "Sprite", price: 40, category: "beverages", image: "🥤" },
-            { id: 12, name: "Frooti Mango Drink", brand: "Frooti", price: 20, category: "beverages", image: "🥭" },
-            { id: 13, name: "Red Bull Energy Drink", brand: "Red Bull", price: 120, category: "beverages", image: "⚡" },
-            { id: 14, name: "Bisleri Water 1L", brand: "Bisleri", price: 20, category: "beverages", image: "💧" },
-            { id: 15, name: "Paper Boat Aamras", brand: "Paper Boat", price: 35, category: "beverages", image: "🧃" },
+            { id: 9, name: "Coca Cola 750ml", brand: "Coca Cola", price: 40, category: "beverages", image: "https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400&h=400&fit=crop" },
+            { id: 10, name: "Pepsi 750ml", brand: "Pepsi", price: 40, category: "beverages", image: "https://images.unsplash.com/photo-1629203851122-3726ecdf080e?w=400&h=400&fit=crop" },
+            { id: 11, name: "Sprite 750ml", brand: "Sprite", price: 40, category: "beverages", image: "https://images.unsplash.com/photo-1625772299848-391b6a87d7b3?w=400&h=400&fit=crop" },
+            { id: 12, name: "Frooti Mango Drink", brand: "Frooti", price: 20, category: "beverages", image: "https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=400&h=400&fit=crop" },
+            { id: 13, name: "Red Bull Energy Drink", brand: "Red Bull", price: 120, category: "beverages", image: "https://images.unsplash.com/photo-1622543925917-763c34f6a61e?w=400&h=400&fit=crop" },
+            { id: 14, name: "Bisleri Water 1L", brand: "Bisleri", price: 20, category: "beverages", image: "https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=400&h=400&fit=crop" },
+            { id: 15, name: "Paper Boat Aamras", brand: "Paper Boat", price: 35, category: "beverages", image: "https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=400&h=400&fit=crop" },
             
             // Groceries
-            { id: 16, name: "Tata Salt 1kg", brand: "Tata", price: 22, category: "groceries", image: "🧂" },
-            { id: 17, name: "Fortune Sunflower Oil 1L", brand: "Fortune", price: 150, category: "groceries", image: "🛢️" },
-            { id: 18, name: "India Gate Basmati Rice 1kg", brand: "India Gate", price: 120, category: "groceries", image: "🍚" },
-            { id: 19, name: "Aashirvaad Atta 5kg", brand: "Aashirvaad", price: 240, category: "groceries", image: "🌾" },
-            { id: 20, name: "Toor Dal 1kg", brand: "Local", price: 110, category: "groceries", image: "🫘" },
-            { id: 21, name: "Sugar 1kg", brand: "Local", price: 45, category: "groceries", image: "🍬" },
+            { id: 16, name: "Tata Salt 1kg", brand: "Tata", price: 22, category: "groceries", image: "https://images.unsplash.com/photo-1598520106830-8c45c2035460?w=400&h=400&fit=crop" },
+            { id: 17, name: "Fortune Sunflower Oil 1L", brand: "Fortune", price: 150, category: "groceries", image: "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400&h=400&fit=crop" },
+            { id: 18, name: "India Gate Basmati Rice 1kg", brand: "India Gate", price: 120, category: "groceries", image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&h=400&fit=crop" },
+            { id: 19, name: "Aashirvaad Atta 5kg", brand: "Aashirvaad", price: 240, category: "groceries", image: "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=400&h=400&fit=crop" },
+            { id: 20, name: "Toor Dal 1kg", brand: "Local", price: 110, category: "groceries", image: "https://images.unsplash.com/photo-1596040008851-e81875393569?w=400&h=400&fit=crop" },
+            { id: 21, name: "Sugar 1kg", brand: "Local", price: 45, category: "groceries", image: "https://images.unsplash.com/photo-1582281298055-e25b95fde2f2?w=400&h=400&fit=crop" },
             
             // Dairy
-            { id: 22, name: "Amul Milk 1L", brand: "Amul", price: 62, category: "dairy", image: "🥛" },
-            { id: 23, name: "Amul Butter 500g", brand: "Amul", price: 260, category: "dairy", image: "🧈" },
-            { id: 24, name: "Mother Dairy Curd 400g", brand: "Mother Dairy", price: 40, category: "dairy", image: "🥣" },
-            { id: 25, name: "Amul Cheese Slices", brand: "Amul", price: 140, category: "dairy", image: "🧀" },
-            { id: 26, name: "Nestle Dahi", brand: "Nestle", price: 30, category: "dairy", image: "🥣" },
+            { id: 22, name: "Amul Milk 1L", brand: "Amul", price: 62, category: "dairy", image: "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=400&fit=crop" },
+            { id: 23, name: "Amul Butter 500g", brand: "Amul", price: 260, category: "dairy", image: "https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=400&h=400&fit=crop" },
+            { id: 24, name: "Mother Dairy Curd 400g", brand: "Mother Dairy", price: 40, category: "dairy", image: "https://images.unsplash.com/photo-1628088062854-d1870b4553da?w=400&h=400&fit=crop" },
+            { id: 25, name: "Amul Cheese Slices", brand: "Amul", price: 140, category: "dairy", image: "https://images.unsplash.com/photo-1452195100486-9cc805987862?w=400&h=400&fit=crop" },
+            { id: 26, name: "Nestle Dahi", brand: "Nestle", price: 30, category: "dairy", image: "https://images.unsplash.com/photo-1571212515416-arcitects-corner?w=400&h=400&fit=crop" },
             
             // Personal Care
-            { id: 27, name: "Colgate Toothpaste", brand: "Colgate", price: 85, category: "personal", image: "🦷" },
-            { id: 28, name: "Dove Soap", brand: "Dove", price: 65, category: "personal", image: "🧼" },
-            { id: 29, name: "Dettol Handwash", brand: "Dettol", price: 95, category: "personal", image: "🧴" },
-            { id: 30, name: "Head & Shoulders", brand: "H&S", price: 180, category: "personal", image: "🧴" },
-            { id: 31, name: "Gillette Razor", brand: "Gillette", price: 120, category: "personal", image: "🪒" },
-            { id: 32, name: "Nivea Body Lotion", brand: "Nivea", price: 150, category: "personal", image: "🧴" },
+            { id: 27, name: "Colgate Toothpaste", brand: "Colgate", price: 85, category: "personal", image: "https://images.unsplash.com/photo-1622597467836-f3285f2131b8?w=400&h=400&fit=crop" },
+            { id: 28, name: "Dove Soap", brand: "Dove", price: 65, category: "personal", image: "https://images.unsplash.com/photo-1585155722857-d1a92e2a5515?w=400&h=400&fit=crop" },
+            { id: 29, name: "Dettol Handwash", brand: "Dettol", price: 95, category: "personal", image: "https://images.unsplash.com/photo-1584305574878-f1fb39a6d8ce?w=400&h=400&fit=crop" },
+            { id: 30, name: "Head & Shoulders", brand: "H&S", price: 180, category: "personal", image: "https://images.unsplash.com/photo-1631729371254-42c2892f0e6e?w=400&h=400&fit=crop" },
+            { id: 31, name: "Gillette Razor", brand: "Gillette", price: 120, category: "personal", image: "https://images.unsplash.com/photo-1532088656136-2ed20b58fa46?w=400&h=400&fit=crop" },
+            { id: 32, name: "Nivea Body Lotion", brand: "Nivea", price: 150, category: "personal", image: "https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=400&h=400&fit=crop" },
         ];
 
         let myCart = [];
@@ -515,15 +933,13 @@
 
                 return `
                     <div class="item-card">
-                        <div class="item-image" style="font-size: 72px; display: flex; align-items: center; justify-content: center;">
-                            ${item.image}
-                        </div>
+                        <img src="${item.image}" alt="${item.name}" class="item-image" crossorigin="anonymous" loading="lazy" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x400/667eea/ffffff?text=${encodeURIComponent(item.brand)}'" />
                         <h3 class="item-name">${item.name}</h3>
                         <p class="item-brand">${item.brand}</p>
                         <p class="item-price">₹${item.price}</p>
                         <div class="item-actions">
                             ${quantity > 0 ? `
-                                <div class="quantity-control">
+                                <div class="quantity-control" style="width: 100%;">
                                     <button class="quantity-btn" onclick="updateQuantity(${item.id}, ${quantity - 1})">
                                         <i class="fas fa-minus"></i>
                                     </button>
@@ -534,7 +950,7 @@
                                 </div>
                             ` : `
                                 <button class="add-to-cart-btn" onclick="addToCart(${item.id})">
-                                    <i class="fas fa-cart-plus"></i> Add
+                                    <i class="fas fa-cart-plus"></i> ADD
                                 </button>
                             `}
                         </div>
@@ -621,7 +1037,7 @@
             } else {
                 cartList.innerHTML = myCart.map(item => `
                     <div class="cart-item">
-                        <div style="font-size: 48px;">${item.image}</div>
+                        <img src="${item.image}" alt="${item.name}" class="cart-item-image" crossorigin="anonymous" loading="lazy" onerror="this.onerror=null; this.src='https://via.placeholder.com/80x80/667eea/ffffff?text=${encodeURIComponent(item.brand)}'" />
                         <div class="cart-item-details">
                             <div class="cart-item-name">${item.name}</div>
                             <div class="cart-item-price">₹${item.price} × ${item.quantity} = ₹${item.price * item.quantity}</div>
@@ -676,7 +1092,227 @@
         }
 
         function proceedToCheckout() {
-            showToast('Checkout functionality coming soon!', 'info');
+            const total = myCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            
+            if (myCart.length === 0) {
+                showToast('Your cart is empty!', 'error');
+                return;
+            }
+
+            closeMyCart();
+            openCheckoutModal();
+        }
+
+        let currentStep = 1;
+        let selectedPaymentMethod = 'cod';
+        let deliveryCharge = 50;
+
+        function openCheckoutModal() {
+            const modal = document.getElementById('checkoutModal');
+            currentStep = 1;
+            updateCheckoutStep();
+            loadCheckoutCart();
+            loadUserAddress();
+            modal.classList.add('active');
+        }
+
+        function closeCheckout() {
+            document.getElementById('checkoutModal').classList.remove('active');
+            currentStep = 1;
+        }
+
+        function nextStep(step) {
+            // Mark current step as completed
+            document.getElementById(`step${currentStep}`).classList.add('completed');
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            
+            currentStep = step;
+            updateCheckoutStep();
+            
+            if (step === 4) {
+                loadOrderConfirmation();
+            }
+        }
+
+        function previousStep(step) {
+            // Remove completed from current step
+            document.getElementById(`step${currentStep}`).classList.remove('completed');
+            
+            currentStep = step;
+            updateCheckoutStep();
+        }
+
+        function updateCheckoutStep() {
+            // Hide all sections
+            document.querySelectorAll('.checkout-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show current section
+            document.getElementById(`section${currentStep}`).classList.add('active');
+            
+            // Update step indicators
+            for (let i = 1; i <= 4; i++) {
+                const step = document.getElementById(`step${i}`);
+                if (i === currentStep) {
+                    step.classList.add('active');
+                    step.classList.remove('completed');
+                } else if (i < currentStep) {
+                    step.classList.add('completed');
+                    step.classList.remove('active');
+                } else {
+                    step.classList.remove('active', 'completed');
+                }
+            }
+        }
+
+        function loadCheckoutCart() {
+            const subtotal = myCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const total = subtotal + (subtotal >= 250 ? 0 : deliveryCharge);
+            
+            document.getElementById('checkoutCartItems').innerHTML = myCart.map(item => `
+                <div class="cart-item">
+                    <img src="${item.image}" alt="${item.name}" class="cart-item-image" crossorigin="anonymous" loading="lazy" onerror="this.onerror=null; this.src='https://via.placeholder.com/80x80/667eea/ffffff?text=${encodeURIComponent(item.brand)}'" />
+                    <div class="cart-item-details">
+                        <div class="cart-item-name">${item.name}</div>
+                        <div class="cart-item-price">₹${item.price} × ${item.quantity}</div>
+                    </div>
+                    <div style="font-weight: 600;">₹${item.price * item.quantity}</div>
+                </div>
+            `).join('');
+            
+            document.getElementById('checkoutSubtotal').textContent = subtotal;
+            document.getElementById('deliveryChargeDisplay').textContent = subtotal >= 250 ? 'FREE' : `₹${deliveryCharge}`;
+            document.getElementById('checkoutTotal').textContent = total;
+        }
+
+        function loadUserAddress() {
+            const user = api.getUser();
+            if (!user) return;
+            
+            document.getElementById('addressList').innerHTML = `
+                <div class="address-card selected" onclick="selectAddress(this)">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div>
+                            <div style="font-weight: 600; margin-bottom: 8px;">
+                                <i class="fas fa-home"></i> Home
+                            </div>
+                            <div style="color: var(--gray); font-size: 14px; line-height: 1.6;">
+                                ${user.location?.address || user.address || 'Address not provided'}<br>
+                                ${user.location?.city || user.city || ''}, ${user.location?.pincode || user.pincode || ''}
+                            </div>
+                        </div>
+                        <input type="radio" name="address" checked>
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectAddress(element) {
+            document.querySelectorAll('.address-card').forEach(card => {
+                card.classList.remove('selected');
+                card.querySelector('input').checked = false;
+            });
+            element.classList.add('selected');
+            element.querySelector('input').checked = true;
+        }
+
+        function addNewAddress() {
+            showToast('Add address feature coming soon!', 'info');
+        }
+
+        function selectPayment(method) {
+            selectedPaymentMethod = method;
+            document.querySelectorAll('.payment-option').forEach(option => {
+                option.classList.remove('selected');
+                option.querySelector('input').checked = false;
+            });
+            event.currentTarget.classList.add('selected');
+            event.currentTarget.querySelector('input').checked = true;
+        }
+
+        function loadOrderConfirmation() {
+            const subtotal = myCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const deliveryFee = subtotal >= 250 ? 0 : deliveryCharge;
+            const total = subtotal + deliveryFee;
+            const user = api.getUser();
+            
+            const paymentNames = {
+                'cod': 'Cash on Delivery',
+                'upi': 'UPI Payment',
+                'card': 'Credit/Debit Card',
+                'netbanking': 'Net Banking',
+                'wallet': 'Digital Wallet'
+            };
+            
+            document.getElementById('orderConfirmation').innerHTML = `
+                <h3>Order Summary</h3>
+                <div class="order-summary">
+                    <div class="summary-row">
+                        <span><strong>Items (${myCart.reduce((sum, item) => sum + item.quantity, 0)})</strong></span>
+                        <span>₹${subtotal}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span><strong>Delivery</strong></span>
+                        <span>${deliveryFee === 0 ? 'FREE' : '₹' + deliveryFee}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span><strong>Total Amount</strong></span>
+                        <span>₹${total}</span>
+                    </div>
+                </div>
+                
+                <h3 style="margin-top: 24px;">Delivery Address</h3>
+                <div class="address-card">
+                    <div style="font-weight: 600; margin-bottom: 8px;">
+                        <i class="fas fa-map-marker-alt"></i> ${user.name}
+                    </div>
+                    <div style="color: var(--gray); font-size: 14px;">
+                        ${user.location?.address || user.address || ''}<br>
+                        ${user.location?.city || user.city || ''}, ${user.location?.pincode || user.pincode || ''}<br>
+                        Phone: ${user.phone}
+                    </div>
+                </div>
+                
+                <h3 style="margin-top: 24px;">Payment Method</h3>
+                <div class="payment-option selected">
+                    <div class="payment-icon" style="background: var(--primary); color: white;">
+                        <i class="fas fa-${selectedPaymentMethod === 'cod' ? 'money-bill-wave' : selectedPaymentMethod === 'upi' ? 'mobile-alt' : selectedPaymentMethod === 'card' ? 'credit-card' : selectedPaymentMethod === 'wallet' ? 'wallet' : 'university'}"></i>
+                    </div>
+                    <div class="payment-details">
+                        <div class="payment-name">${paymentNames[selectedPaymentMethod]}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function placeOrder() {
+            const subtotal = myCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const deliveryFee = subtotal >= 250 ? 0 : deliveryCharge;
+            const total = subtotal + deliveryFee;
+            
+            // Show loading
+            showToast('Processing your order...', 'info');
+            
+            // Simulate order placement
+            setTimeout(() => {
+                const orderId = 'OD' + Date.now().toString().slice(-8);
+                document.getElementById('orderId').textContent = orderId;
+                
+                // Clear cart
+                myCart = [];
+                updateCartUI();
+                
+                // Show success
+                document.getElementById('section4').classList.remove('active');
+                document.getElementById('section5').classList.add('active');
+                
+                showToast('Order placed successfully!', 'success');
+            }, 2000);
+        }
+
+        function viewOrders() {
+            window.location.href = 'orders.html';
         }
 
         function logout() {

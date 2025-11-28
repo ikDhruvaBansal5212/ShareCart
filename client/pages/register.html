@@ -7,141 +7,343 @@
     <link rel="stylesheet" href="../css/global.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        .auth-container {
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             padding: 20px;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 900px;
         }
 
         .auth-card {
             background: white;
-            border-radius: 16px;
-            padding: 48px;
-            max-width: 500px;
-            width: 100%;
+            border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            max-height: 90vh;
-            overflow-y: auto;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        @media (max-width: 768px) {
+            .auth-card {
+                grid-template-columns: 1fr;
+            }
+            .welcome-side {
+                display: none;
+            }
+        }
+
+        .welcome-side {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 60px 40px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .welcome-side i {
+            font-size: 80px;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .welcome-side h2 {
+            font-size: 32px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .welcome-side p {
+            font-size: 16px;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+
+        .welcome-features {
+            margin-top: 40px;
+            text-align: left;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .feature-item i {
+            font-size: 24px;
+            width: 24px;
+        }
+
+        .form-side {
+            padding: 60px 50px;
+        }
+
+        @media (max-width: 480px) {
+            .form-side {
+                padding: 40px 30px;
+            }
         }
 
         .auth-header {
-            text-align: center;
-            margin-bottom: 32px;
+            margin-bottom: 40px;
         }
 
         .auth-header h1 {
-            font-size: 32px;
-            color: var(--dark);
+            font-size: 28px;
+            color: #1f2937;
             margin-bottom: 8px;
+            font-weight: 600;
         }
 
         .auth-header p {
-            color: var(--gray);
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 480px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #374151;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         .error-message {
             background: #fee2e2;
             color: #991b1b;
-            padding: 12px;
-            border-radius: 8px;
+            padding: 12px 16px;
+            border-radius: 10px;
             margin-bottom: 20px;
             display: none;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-outline {
+            width: 100%;
+            padding: 12px;
+            background: white;
+            color: #667eea;
+            border: 1.5px solid #667eea;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline:hover:not(:disabled) {
+            background: #f3f4f6;
+        }
+
+        .btn-outline:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         .auth-footer {
             text-align: center;
-            margin-top: 24px;
-            color: var(--gray);
+            margin-top: 30px;
+            color: #6b7280;
+            font-size: 14px;
         }
 
         .auth-footer a {
-            color: var(--primary-color);
+            color: #667eea;
             text-decoration: none;
-            font-weight: 500;
+            font-weight: 600;
         }
 
         .auth-footer a:hover {
             text-decoration: underline;
         }
 
-        .btn-full {
-            width: 100%;
-        }
-
-        .location-btn {
+        .divider {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 8px;
+            margin: 24px 0;
+            color: #9ca3af;
+            font-size: 14px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e5e7eb;
+        }
+
+        .divider::before {
+            margin-right: 16px;
+        }
+
+        .divider::after {
+            margin-left: 16px;
+        }
+
+        small {
+            color: #6b7280;
+            font-size: 12px;
+            display: block;
+            margin-top: 4px;
         }
     </style>
 </head>
 <body>
     <div class="auth-container">
         <div class="auth-card">
-            <div class="auth-header">
-                <h1><i class="fas fa-shopping-cart"></i> ShareCart</h1>
-                <p>Create your account</p>
+            <!-- Welcome Side -->
+            <div class="welcome-side">
+                <i class="fas fa-shopping-cart"></i>
+                <h2>Welcome to ShareCart</h2>
+                <p>Join thousands of users who are saving money by sharing delivery costs on their favorite platforms.</p>
+                
+                <div class="welcome-features">
+                    <div class="feature-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Split delivery charges</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Connect with nearby users</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Track orders in real-time</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Save money on every order</span>
+                    </div>
+                </div>
             </div>
 
-            <div id="errorMessage" class="error-message"></div>
-
-            <form id="registerForm">
-                <div class="form-group">
-                    <label for="name">Full Name</label>
-                    <input type="text" id="name" class="form-control" placeholder="John Doe" required>
+            <!-- Form Side -->
+            <div class="form-side">
+                <div class="auth-header">
+                    <h1>Create Account</h1>
+                    <p>Start saving on delivery costs today</p>
                 </div>
 
-                <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <input type="email" id="email" class="form-control" placeholder="john@example.com" required>
+                <div id="errorMessage" class="error-message"></div>
+
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" class="form-control" placeholder="John Doe" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" class="form-control" placeholder="john@example.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" class="form-control" placeholder="Minimum 6 characters" minlength="6" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" class="form-control" placeholder="9876543210" pattern="[6-9][0-9]{9}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="address">Address</label>
+                        <input type="text" id="address" class="form-control" placeholder="Street, Area, City - Pincode" required>
+                    </div>
+
+                    <input type="hidden" id="city" value="Mumbai">
+                    <input type="hidden" id="pincode" value="400001">
+                    <input type="hidden" id="latitude" value="19.0760">
+                    <input type="hidden" id="longitude" value="72.8777">
+
+                    <button type="submit" class="btn-primary" id="registerBtn">
+                        <span id="registerText">Create Account</span>
+                        <span id="registerSpinner" style="display: none;"><i class="fas fa-spinner fa-spin"></i> Creating...</span>
+                    </button>
+                </form>
+
+                <div class="auth-footer">
+                    Already have an account? <a href="login.html">Sign In</a>
                 </div>
-
-                <div class="form-group">
-                    <label for="phone">Phone Number</label>
-                    <input type="tel" id="phone" class="form-control" placeholder="9876543210" pattern="[6-9][0-9]{9}" required>
-                    <small style="color: var(--gray);">Enter 10-digit Indian mobile number</small>
-                </div>
-
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" class="form-control" placeholder="Min 6 characters" minlength="6" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="address">Address</label>
-                    <input type="text" id="address" class="form-control" placeholder="123 Main St, Mumbai" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="city">City</label>
-                    <input type="text" id="city" class="form-control" placeholder="Mumbai" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="pincode">Pincode</label>
-                    <input type="text" id="pincode" class="form-control" placeholder="400001" pattern="[0-9]{6}" required>
-                </div>
-
-                <input type="hidden" id="latitude" value="19.0760">
-                <input type="hidden" id="longitude" value="72.8777">
-
-                <button type="button" class="btn btn-outline btn-full location-btn" id="getLocationBtn">
-                    <i class="fas fa-map-marker-alt"></i> Use My Current Location
-                </button>
-
-                <button type="submit" class="btn btn-primary btn-full mt-2" id="registerBtn">
-                    <span id="registerText">Create Account</span>
-                    <span id="registerSpinner" style="display: none;"><i class="fas fa-spinner fa-spin"></i> Creating...</span>
-                </button>
-            </form>
-
-            <div class="auth-footer">
-                Already have an account? <a href="login.html">Login</a>
             </div>
         </div>
     </div>
@@ -158,31 +360,11 @@
         const registerBtn = document.getElementById('registerBtn');
         const registerText = document.getElementById('registerText');
         const registerSpinner = document.getElementById('registerSpinner');
-        const getLocationBtn = document.getElementById('getLocationBtn');
-
-        // Get current location
-        getLocationBtn.addEventListener('click', async () => {
-            getLocationBtn.disabled = true;
-            getLocationBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting location...';
-
-            try {
-                const location = await getUserLocation();
-                document.getElementById('latitude').value = location.coordinates[1];
-                document.getElementById('longitude').value = location.coordinates[0];
-                
-                showToast('Location captured successfully!', 'success');
-                getLocationBtn.innerHTML = '<i class="fas fa-check"></i> Location Captured';
-                getLocationBtn.classList.remove('btn-outline');
-                getLocationBtn.classList.add('btn-secondary');
-            } catch (error) {
-                showToast('Could not get location. Please enter manually.', 'error');
-                getLocationBtn.disabled = false;
-                getLocationBtn.innerHTML = '<i class="fas fa-map-marker-alt"></i> Use My Current Location';
-            }
-        });
 
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            const address = document.getElementById('address').value;
             
             const userData = {
                 name: document.getElementById('name').value,
@@ -194,7 +376,7 @@
                         parseFloat(document.getElementById('longitude').value),
                         parseFloat(document.getElementById('latitude').value)
                     ],
-                    address: document.getElementById('address').value,
+                    address: address,
                     city: document.getElementById('city').value,
                     pincode: document.getElementById('pincode').value
                 }
