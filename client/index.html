@@ -75,7 +75,7 @@
     <!-- Signup Modal -->
     <div id="signupModal" class="modal">
         <div class="modal-overlay" onclick="closeSignupModal()"></div>
-        <div class="modal-content modal-large">
+        <div class="modal-content">
             <button class="modal-close" onclick="closeSignupModal()">
                 <i class="fas fa-times"></i>
             </button>
@@ -84,74 +84,19 @@
                 <p>Join ShareCart and start saving money today!</p>
             </div>
             <form id="signupForm" class="auth-form">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="signupName">Full Name</label>
-                        <div class="input-with-icon">
-                            <i class="fas fa-user"></i>
-                            <input type="text" id="signupName" placeholder="Enter your name" required>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="signupEmail">Email Address</label>
-                        <div class="input-with-icon">
-                            <i class="fas fa-envelope"></i>
-                            <input type="email" id="signupEmail" placeholder="Enter your email" required>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="signupPhone">Phone Number</label>
-                        <div class="input-with-icon">
-                            <i class="fas fa-phone"></i>
-                            <input type="tel" id="signupPhone" placeholder="10-digit mobile number" pattern="[0-9]{10}" required>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="signupPassword">Password</label>
-                        <div class="input-with-icon">
-                            <i class="fas fa-lock"></i>
-                            <input type="password" id="signupPassword" placeholder="Min 6 characters" minlength="6" required>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="signupCity">City</label>
-                        <div class="input-with-icon">
-                            <i class="fas fa-city"></i>
-                            <input type="text" id="signupCity" placeholder="Enter your city" required>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="signupPincode">Pincode</label>
-                        <div class="input-with-icon">
-                            <i class="fas fa-map-pin"></i>
-                            <input type="text" id="signupPincode" placeholder="6-digit pincode" pattern="[0-9]{6}" required>
-                        </div>
-                    </div>
-                </div>
                 <div class="form-group">
-                    <label for="signupAddress">Address</label>
+                    <label for="signupEmail">Email Address</label>
                     <div class="input-with-icon">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <input type="text" id="signupAddress" placeholder="Enter your full address" required>
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="signupEmail" placeholder="Enter your email" required>
                     </div>
                 </div>
-                <div class="location-capture">
-                    <button type="button" onclick="captureLocation()" class="btn btn-outline">
-                        <i class="fas fa-location-arrow"></i> Use My Current Location
-                    </button>
-                    <span id="locationStatus" class="location-status"></span>
-                </div>
-                <input type="hidden" id="signupLat" value="19.0760">
-                <input type="hidden" id="signupLng" value="72.8777">
                 <div class="form-group">
-                    <label class="checkbox-label">
-                        <input type="checkbox" required>
-                        I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
-                    </label>
+                    <label for="signupPassword">Password</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="signupPassword" placeholder="Min 6 characters" minlength="6" required>
+                    </div>
                 </div>
                 <button type="submit" class="btn btn-primary btn-full">
                     <i class="fas fa-rocket"></i> Create Account
@@ -518,30 +463,6 @@
             openLoginModal();
         }
 
-        // Geolocation
-        function captureLocation() {
-            const statusEl = document.getElementById('locationStatus');
-            statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting location...';
-            
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        document.getElementById('signupLat').value = position.coords.latitude;
-                        document.getElementById('signupLng').value = position.coords.longitude;
-                        statusEl.innerHTML = '<i class="fas fa-check-circle"></i> Location captured!';
-                        statusEl.style.color = '#10b981';
-                    },
-                    (error) => {
-                        statusEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Using default location (Mumbai)';
-                        statusEl.style.color = '#f59e0b';
-                    }
-                );
-            } else {
-                statusEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Geolocation not supported';
-                statusEl.style.color = '#ef4444';
-            }
-        }
-
         // Login Form Handler
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -573,19 +494,8 @@
             e.preventDefault();
             
             const userData = {
-                name: document.getElementById('signupName').value,
                 email: document.getElementById('signupEmail').value,
-                phone: document.getElementById('signupPhone').value,
-                password: document.getElementById('signupPassword').value,
-                location: {
-                    address: document.getElementById('signupAddress').value,
-                    city: document.getElementById('signupCity').value,
-                    pincode: document.getElementById('signupPincode').value,
-                    coordinates: [
-                        parseFloat(document.getElementById('signupLng').value),
-                        parseFloat(document.getElementById('signupLat').value)
-                    ]
-                }
+                password: document.getElementById('signupPassword').value
             };
             
             const submitBtn = e.target.querySelector('button[type="submit"]');

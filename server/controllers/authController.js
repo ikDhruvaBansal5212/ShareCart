@@ -17,14 +17,22 @@ exports.register = async (req, res, next) => {
       });
     }
 
-    // Create user
-    user = await User.create({
-      name,
+    // Create user with defaults for optional fields
+    const userData = {
+      name: name || email.split('@')[0],
       email,
       password,
-      phone,
-      location
-    });
+      phone: phone || '9999999999',
+      location: location || {
+        type: 'Point',
+        coordinates: [72.8777, 19.0760],
+        address: 'Not provided',
+        city: 'Mumbai',
+        pincode: '400001'
+      }
+    };
+
+    user = await User.create(userData);
 
     // Create token
     const token = user.getSignedJwtToken();

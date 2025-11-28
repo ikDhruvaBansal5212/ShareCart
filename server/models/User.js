@@ -27,7 +27,8 @@ const userSchema = new mongoose.Schema({
   },
   phone: {
     type: String,
-    required: [true, 'Please provide a phone number'],
+    required: false,
+    default: '9999999999',
     match: [/^[6-9]\d{9}$/, 'Please provide a valid Indian phone number']
   },
   location: {
