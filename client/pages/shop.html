@@ -32,11 +32,11 @@
         }
 
         .cart-total {
-            font-size: 28px;
+              border-color: var(--primary-color);
             font-weight: bold;
             margin: 0;
         }
-
+              border-color: var(--primary-color);
         .min-order-bar {
             background: white;
             padding: 20px;
@@ -44,27 +44,27 @@
             margin-bottom: 24px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
-
+              color: var(--primary-color);
         .progress-info {
             display: flex;
             justify-content: space-between;
             margin-bottom: 12px;
-            font-weight: 600;
+              color: var(--primary-color);
         }
 
         .progress-bar {
             height: 12px;
-            background: #e5e7eb;
+              border-color: var(--primary-color);
             border-radius: 6px;
             overflow: hidden;
             position: relative;
         }
-
+              border-color: var(--primary-color);
         .progress-fill {
             height: 100%;
             background: linear-gradient(90deg, #10b981 0%, #059669 100%);
             transition: width 0.3s;
-            position: relative;
+              border-color: var(--primary-color);
         }
 
         .progress-fill.incomplete {
@@ -110,13 +110,13 @@
         }
 
         .category-btn:hover {
-            border-color: var(--primary);
+            border-color: var(--primary-color);
             background: #f0f9ff;
         }
 
         .category-btn.active {
-            border-color: var(--primary);
-            background: var(--primary);
+            border-color: var(--primary-color);
+            background: var(--primary-color);
             color: white;
         }
 
@@ -165,7 +165,7 @@
         .item-price {
             font-size: 20px;
             font-weight: bold;
-            color: var(--primary);
+            color: var(--primary-color);
             margin-bottom: 12px;
         }
 
@@ -188,7 +188,7 @@
             width: 32px;
             height: 32px;
             border: none;
-            background: var(--primary);
+            background: var(--primary-color);
             color: white;
             border-radius: 6px;
             cursor: pointer;
@@ -196,6 +196,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            box-shadow: var(--shadow-sm);
+            z-index: 2;
         }
 
         .quantity-btn:hover {
@@ -342,7 +344,7 @@
         }
 
         .cart-item-price {
-            color: var(--primary);
+            color: var(--primary-color);
             font-weight: 600;
         }
 
@@ -436,9 +438,9 @@
         }
 
         .step.active .step-circle {
-            background: var(--primary);
+            background: var(--primary-color);
             color: white;
-            border-color: var(--primary);
+            border-color: var(--primary-color);
         }
 
         .step.completed .step-circle {
@@ -454,7 +456,7 @@
         }
 
         .step.active .step-label {
-            color: var(--primary);
+            color: var(--primary-color);
             font-weight: 600;
         }
 
@@ -490,7 +492,7 @@
             border-bottom: none;
             font-weight: bold;
             font-size: 18px;
-            color: var(--primary);
+            color: var(--primary-color);
             padding-top: 16px;
         }
 
@@ -504,12 +506,12 @@
         }
 
         .address-card:hover {
-            border-color: var(--primary);
+            border-color: var(--primary-color);
             background: #f0f9ff;
         }
 
         .address-card.selected {
-            border-color: var(--primary);
+            border-color: var(--primary-color);
             background: #f0f9ff;
         }
 
@@ -526,12 +528,12 @@
         }
 
         .payment-option:hover {
-            border-color: var(--primary);
+            border-color: var(--primary-color);
             background: #f0f9ff;
         }
 
         .payment-option.selected {
-            border-color: var(--primary);
+            border-color: var(--primary-color);
             background: #f0f9ff;
         }
 
@@ -663,7 +665,7 @@
             <div style="margin-top: 24px; padding-top: 24px; border-top: 2px solid var(--border);">
                 <div style="display: flex; justify-content: space-between; font-size: 20px; font-weight: bold; margin-bottom: 16px;">
                     <span>Total:</span>
-                    <span style="color: var(--primary);">₹<span id="modalCartTotal">0</span></span>
+                    <span style="color: var(--primary-color);">₹<span id="modalCartTotal">0</span></span>
                 </div>
                 <button class="btn btn-primary btn-full" onclick="proceedToCheckout()" id="checkoutBtn">
                     Proceed to Checkout
@@ -840,7 +842,7 @@
                     </div>
                     <h2>Order Placed Successfully!</h2>
                     <p style="color: var(--gray); margin: 16px 0;">Your order has been confirmed and will be delivered soon.</p>
-                    <p style="font-weight: 600; color: var(--primary);">Order ID: #<span id="orderId"></span></p>
+                    <p style="font-weight: 600; color: var(--primary-color);">Order ID: #<span id="orderId"></span></p>
                     <div style="display: flex; gap: 12px; margin-top: 32px;">
                         <button class="btn btn-outline" onclick="closeCheckout()">Continue Shopping</button>
                         <button class="btn btn-primary" onclick="viewOrders()">View Orders</button>
@@ -886,7 +888,7 @@
             { id: 23, name: "Amul Butter 500g", brand: "Amul", price: 260, category: "dairy", image: "https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=400&h=400&fit=crop" },
             { id: 24, name: "Mother Dairy Curd 400g", brand: "Mother Dairy", price: 40, category: "dairy", image: "https://images.unsplash.com/photo-1628088062854-d1870b4553da?w=400&h=400&fit=crop" },
             { id: 25, name: "Amul Cheese Slices", brand: "Amul", price: 140, category: "dairy", image: "https://images.unsplash.com/photo-1452195100486-9cc805987862?w=400&h=400&fit=crop" },
-            { id: 26, name: "Nestle Dahi", brand: "Nestle", price: 30, category: "dairy", image: "https://images.unsplash.com/photo-1571212515416-arcitects-corner?w=400&h=400&fit=crop" },
+            { id: 26, name: "Nestle Dahi", brand: "Nestle", price: 30, category: "dairy", image: "https://images.unsplash.com/photo-1587094313637-dfcd0126f8d1?w=400&h=400&fit=crop" },
             
             // Personal Care
             { id: 27, name: "Colgate Toothpaste", brand: "Colgate", price: 85, category: "personal", image: "https://images.unsplash.com/photo-1622597467836-f3285f2131b8?w=400&h=400&fit=crop" },
@@ -1261,7 +1263,7 @@
                 
                 <h3 style="margin-top: 24px;">Payment Method</h3>
                 <div class="payment-option selected">
-                    <div class="payment-icon" style="background: var(--primary); color: white;">
+                    <div class="payment-icon" style="background: var(--primary-color); color: white;">
                         <i class="fas fa-${selectedPaymentMethod === 'cod' ? 'money-bill-wave' : selectedPaymentMethod === 'upi' ? 'mobile-alt' : selectedPaymentMethod === 'card' ? 'credit-card' : selectedPaymentMethod === 'wallet' ? 'wallet' : 'university'}"></i>
                     </div>
                     <div class="payment-details">
