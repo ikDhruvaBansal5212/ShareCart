@@ -53,6 +53,26 @@
             text-transform: uppercase;
         }
 
+        .platform-blinkit {
+            background: #f8e71c;
+            color: #000;
+        }
+
+        .platform-zepto {
+            background: #7c3aed;
+            color: white;
+        }
+
+        .platform-swiggy {
+            background: #fc8019;
+            color: white;
+        }
+
+        .platform-bigbasket {
+            background: #84c225;
+            color: white;
+        }
+
         .distance-badge {
             background: #e0e7ff;
             color: #3730a3;
@@ -402,10 +422,89 @@
             cursor: pointer;
             color: var(--gray);
         }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 10001;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast-success {
+            border-left: 4px solid #10b981;
+        }
+
+        .toast-error {
+            border-left: 4px solid #ef4444;
+        }
+
+        .toast-info {
+            border-left: 4px solid #3b82f6;
+        }
+
+        .toast i {
+            font-size: 20px;
+        }
+
+        .toast-success i {
+            color: #10b981;
+        }
+
+        .toast-error i {
+            color: #ef4444;
+        }
+
+        .toast-info i {
+            color: #3b82f6;
+        }
     </style>
 </head>
 <body>
-
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="../index.html" class="logo">
+                <i class="fas fa-shopping-cart"></i>
+                ShareCart
+            </a>
+            <ul class="nav-links">
+                <li><a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="browse-carts.html" class="active"><i class="fas fa-search"></i> Browse Carts</a></li>
+                <li><a href="my-carts.html"><i class="fas fa-shopping-bag"></i> My Carts</a></li>
+                <li><a href="orders.html"><i class="fas fa-receipt"></i> Orders</a></li>
+            </ul>
+            <div class="nav-profile">
+                <img id="userAvatar" src="" alt="Profile" class="profile-avatar">
+                <div class="dropdown">
+                    <button class="dropdown-toggle">
+                        <span id="userName">User</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="dropdown-menu">
+                        <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
+                        <a href="orders.html"><i class="fas fa-receipt"></i> Orders</a>
+                        <a href="#" onclick="api.logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
 
     <!-- Main Content -->
     <div class="container">
@@ -711,14 +810,24 @@
             window.location.href = `cart-details.html?id=${cartId}`;
         }
 
-        function openShareModal(cartId) {
-                    loadCarts();
-                    setTimeout(() => {
-                        window.location.href = `cart-details.html?id=${cartId}`;
-                    }, 1500);
+        async function openShareModal(cartId) {
+            try {
+                const response = await api.getCart(cartId);
+                if (response.success) {
+                    const cart = response.data;
+                    const modal = document.getElementById('shareModal');
+                    const shareLink = `${window.location.origin}/client/pages/join-cart.html?id=${cartId}`;
+                    document.getElementById('shareLink').value = shareLink;
+                    
+                    // Generate QR code
+                    document.getElementById('qrCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(shareLink)}`;
+                    
+                    currentShareCart = cart;
+                    modal.classList.add('active');
                 }
             } catch (error) {
-                showToast(error.message, 'error');
+                console.error('Error loading cart:', error);
+                showToast('Failed to load cart details', 'error');
             }
         }
 
@@ -760,52 +869,95 @@
         // Share functionality
         let currentShareCart = null;
 
-        function openShareModal(cartId, cart) {
-            currentShareCart = typeof cart === 'string' ? JSON.parse(cart.replace(/&quot;/g, '"')) : cart;
-            
-            const modal = document.getElementById('shareModal');
-            document.getElementById('shareLink').value = cartSharing.generateShareLink(cartId);
-            document.getElementById('qrCode').src = cartSharing.generateQRCode(cartId);
-            
-            modal.classList.add('active');
-        }
-
         function closeShareModal() {
             document.getElementById('shareModal').classList.remove('active');
             currentShareCart = null;
         }
 
         async function copyShareLink() {
-            const success = await cartSharing.copyLink(currentShareCart._id);
-            if (success) {
+            const linkInput = document.getElementById('shareLink');
+            try {
+                await navigator.clipboard.writeText(linkInput.value);
                 showToast('Link copied to clipboard!', 'success');
-            } else {
-                showToast('Failed to copy link', 'error');
+            } catch (error) {
+                // Fallback for older browsers
+                linkInput.select();
+                document.execCommand('copy');
+                showToast('Link copied to clipboard!', 'success');
             }
         }
 
         function shareViaWhatsApp() {
-            cartSharing.shareViaWhatsApp(currentShareCart);
+            if (!currentShareCart) return;
+            const text = `Join my ${currentShareCart.platform} cart and split delivery charges! Save ₹${(currentShareCart.deliveryCharge - (currentShareCart.deliveryCharge / currentShareCart.maxMembers)).toFixed(0)}`;
+            const link = document.getElementById('shareLink').value;
+            window.open(`https://wa.me/?text=${encodeURIComponent(text + '\n' + link)}`, '_blank');
         }
 
         function shareViaFacebook() {
-            cartSharing.shareOnFacebook(currentShareCart);
+            const link = document.getElementById('shareLink').value;
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}`, '_blank');
         }
 
         function shareViaTwitter() {
-            cartSharing.shareOnTwitter(currentShareCart);
+            if (!currentShareCart) return;
+            const text = `Join my ${currentShareCart.platform} cart and save on delivery! 💰`;
+            const link = document.getElementById('shareLink').value;
+            window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(link)}`, '_blank');
         }
 
         function shareViaEmail() {
-            cartSharing.shareViaEmail(currentShareCart);
+            if (!currentShareCart) return;
+            const subject = `Join my ${currentShareCart.platform} cart`;
+            const body = `Hi!\n\nI'm creating a cart on ${currentShareCart.platform} and inviting you to join. We can split the delivery charges and save money!\n\nJoin here: ${document.getElementById('shareLink').value}`;
+            window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
         }
 
         function shareViaSMS() {
-            cartSharing.shareViaSMS(currentShareCart);
+            if (!currentShareCart) return;
+            const text = `Join my ${currentShareCart.platform} cart and split delivery charges! ${document.getElementById('shareLink').value}`;
+            window.location.href = `sms:?body=${encodeURIComponent(text)}`;
         }
 
         function openDeliveryApp() {
-            cartSharing.openDeliveryApp(currentShareCart.platform);
+            if (!currentShareCart) return;
+            const platformUrls = {
+                'blinkit': 'https://blinkit.com',
+                'zepto': 'https://www.zeptonow.com',
+                'swiggy': 'https://www.swiggy.com/instamart',
+                'bigbasket': 'https://www.bigbasket.com'
+            };
+            const url = platformUrls[currentShareCart.platform] || platformUrls['blinkit'];
+            window.open(url, '_blank');
+        }
+
+        // Helper functions
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR',
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            `;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => toast.classList.add('show'), 100);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function requireAuth() {
+            return !!api.getToken();
         }
 
         // Close modal on ESC
