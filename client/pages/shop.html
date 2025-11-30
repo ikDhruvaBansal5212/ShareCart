@@ -949,21 +949,47 @@
 
         function addToCart(itemId) {
             const item = items.find(i => i.id === itemId);
-            myCart.push({ ...item, quantity: 1 });
+            if (!item) {
+                console.error('addToCart: item not found', itemId);
+                return;
+            }
+            const existing = myCart.find(c => c.id === itemId);
+            if (existing) {
+                existing.quantity += 1;
+            } else {
+                myCart.push({ ...item, quantity: 1 });
+            }
             loadItems();
             updateCartUI();
             showToast(`${item.name} added to cart`, 'success');
         }
 
         function updateQuantity(itemId, newQuantity) {
-            if (newQuantity <= 0) {
-                myCart = myCart.filter(item => item.id !== itemId);
-            } else {
-                const cartItem = myCart.find(item => item.id === itemId);
-                if (cartItem) {
-                    cartItem.quantity = newQuantity;
+            // Defensive parsing because inline template may include string values
+            const id = Number(itemId);
+            const q = Number(newQuantity);
+            console.log('updateQuantity called', { id, q, myCart });
+
+            if (isNaN(id) || isNaN(q)) {
+                console.error('updateQuantity: invalid args', itemId, newQuantity);
+                return;
+            }
+
+            const cartItem = myCart.find(item => Number(item.id) === id);
+            if (!cartItem && q > 0) {
+                // Add item if it exists in items list
+                const product = items.find(i => Number(i.id) === id);
+                if (product) {
+                    myCart.push({ ...product, quantity: q });
+                }
+            } else if (cartItem) {
+                if (q <= 0) {
+                    myCart = myCart.filter(item => Number(item.id) !== id);
+                } else {
+                    cartItem.quantity = q;
                 }
             }
+
             loadItems();
             updateCartUI();
         }
