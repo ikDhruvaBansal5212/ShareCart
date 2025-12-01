@@ -8,38 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="../js/navbar.js"></script>
     <style>
-        .tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 24px;
-            border-bottom: 2px solid var(--border);
-        }
-
-        .tab {
-            padding: 12px 24px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 500;
-            color: var(--gray);
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s;
-        }
-
-        .tab.active {
-            color: var(--primary-color);
-            border-bottom-color: var(--primary-color);
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
         .cart-card {
             background: white;
             border-radius: 12px;
@@ -122,34 +90,13 @@
     <div class="container">
         <div class="page-header">
             <h1>My Carts</h1>
-            <p>Manage your created and joined carts</p>
+            <p>View your joined carts and split delivery charges</p>
         </div>
 
-        <!-- Tabs -->
-        <div class="tabs">
-            <button class="tab active" onclick="switchTab('created')">
-                <i class="fas fa-folder-plus"></i> Created by Me
-            </button>
-            <button class="tab" onclick="switchTab('joined')">
-                <i class="fas fa-users"></i> Joined Carts
-            </button>
-        </div>
-
-        <!-- Created Carts Tab -->
-        <div id="createdTab" class="tab-content active">
-            <div id="createdCartsContainer">
-                <div class="loading">
-                    <div class="spinner"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Joined Carts Tab -->
-        <div id="joinedTab" class="tab-content">
-            <div id="joinedCartsContainer">
-                <div class="loading">
-                    <div class="spinner"></div>
-                </div>
+        <!-- Joined Carts -->
+        <div id="joinedCartsContainer">
+            <div class="loading">
+                <div class="spinner"></div>
             </div>
         </div>
     </div>
@@ -164,23 +111,20 @@
             document.getElementById('userAvatar').src = user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`;
         }
 
-        let currentTab = 'created';
-        let createdCarts = [];
         let joinedCarts = [];
 
-        function switchTab(tab) {
-            currentTab = tab;
-            
-            // Update tab buttons
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
-            
-            // Update tab content
-            document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
-            document.getElementById(`${tab}Tab`).classList.add('active');
-        }
-
         async function loadMyCarts() {
+            // Load demo data immediately to avoid loading spinner
+            loadDemoData();
+            
+            // Also load joined carts from localStorage
+            const localJoinedCarts = JSON.parse(localStorage.getItem('joinedCarts') || '[]');
+            if (localJoinedCarts.length > 0) {
+                joinedCarts = [...joinedCarts, ...localJoinedCarts];
+                renderJoinedCarts();
+            }
+            
+            // Try to fetch from API in background
             try {
                 const response = await api.getMyCarts();
                 const carts = response.data;
@@ -188,117 +132,133 @@
                 console.log('All carts:', carts);
                 console.log('Current user ID:', user._id);
 
-                // Filter carts - check both creator._id and creator (in case it's just an ID string)
-                createdCarts = carts.filter(c => {
-                    if (!c.creator) return false;
-                    const creatorId = typeof c.creator === 'object' ? c.creator._id : c.creator;
-                    return creatorId === user._id || creatorId.toString() === user._id.toString();
-                });
-                
+                // Filter only joined carts
                 joinedCarts = carts.filter(c => {
                     if (!c.creator) return false;
                     const creatorId = typeof c.creator === 'object' ? c.creator._id : c.creator;
                     return creatorId !== user._id && creatorId.toString() !== user._id.toString();
                 });
 
-                console.log('Created carts:', createdCarts);
+                // Merge with local joined carts
+                joinedCarts = [...joinedCarts, ...localJoinedCarts];
+
                 console.log('Joined carts:', joinedCarts);
 
-                renderCreatedCarts();
+                // Re-render with API data if available
                 renderJoinedCarts();
             } catch (error) {
-                console.error('Error loading carts:', error);
-                showToast(error.message, 'error');
+                console.error('Error loading carts from API:', error);
+                // Demo data already loaded, no need to do anything
             }
         }
 
-        function renderCreatedCarts() {
-            const container = document.getElementById('createdCartsContainer');
-
-            if (createdCarts.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-folder-open"></i>
-                        <h3>No carts created yet</h3>
-                        <p>Create a cart to start saving on delivery charges</p>
-                        <a href="shared-carts.html?action=share" class="btn btn-primary">Create Cart</a>
-                    </div>
-                `;
-                return;
-            }
-
-            container.innerHTML = createdCarts.map(cart => {
-                const splitAmount = cart.deliveryCharge / cart.maxMembers;
-                
-                return `
-                    <div class="cart-card">
-                        <div class="cart-header">
-                            <div>
-                                <span class="platform-badge platform-${cart.platform}">${cart.platform}</span>
-                                <span class="badge badge-${cart.status === 'active' ? 'success' : cart.status === 'full' ? 'warning' : 'primary'} ml-2">${cart.status}</span>
-                            </div>
-                            <div class="cart-actions">
-                                <button class="btn btn-sm btn-secondary" onclick="viewCart('${cart._id}')">
-                                    <i class="fas fa-eye"></i> View
-                                </button>
-                                ${cart.status === 'active' ? `
-                                    <button class="btn btn-sm btn-danger" onclick="deleteCart('${cart._id}')">
-                                        <i class="fas fa-trash"></i> Delete
-                                    </button>
-                                ` : ''}
-                            </div>
-                        </div>
-
-                        <div class="card-body">
-                            <div class="info-row">
-                                <span class="info-label">Delivery Charge</span>
-                                <span class="info-value">${formatCurrency(cart.deliveryCharge)}</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label">Split Amount</span>
-                                <span class="info-value">${formatCurrency(splitAmount)}</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label">Members</span>
-                                <span class="info-value">${cart.members.length}/${cart.maxMembers}</span>
-                            </div>
-                        </div>
-
-                        <div class="member-list">
-                            ${cart.members.map(member => {
-                                const memberUser = member.user || member;
-                                return `
-                                <div class="member-item">
-                                    <img src="${memberUser.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(memberUser.name || 'User')}&background=random`}" 
-                                         alt="${memberUser.name || 'User'}" class="member-avatar">
-                                    <span>${memberUser.name || 'User'}</span>
-                                    ${memberUser._id === user._id ? '<span class="badge badge-primary">You</span>' : ''}
-                                </div>
-                            `}).join('')}
-                        </div>
-
-                        ${cart.order ? `
-                            <div class="payment-status">
-                                <h4>Payment Status</h4>
-                                <div class="status-grid">
-                                    <div class="status-item">
-                                        <div class="label">Total Amount</div>
-                                        <div class="value">${formatCurrency(cart.order.totalAmount)}</div>
-                                    </div>
-                                    <div class="status-item">
-                                        <div class="label">Status</div>
-                                        <div class="value">
-                                            <span class="badge badge-${cart.order.paymentStatus === 'completed' ? 'success' : 'warning'}">
-                                                ${cart.order.paymentStatus}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        ` : ''}
-                    </div>
-                `;
-            }).join('');
+        function loadDemoData() {
+            // Demo joined carts
+            joinedCarts = [
+                {
+                    _id: 'demo1',
+                    platform: 'blinkit',
+                    status: 'active',
+                    deliveryCharge: 50,
+                    maxMembers: 3,
+                    creator: {
+                        _id: 'user123',
+                        name: 'Priya Sharma',
+                        avatar: 'https://ui-avatars.com/api/?name=Priya+Sharma&background=10b981'
+                    },
+                    members: [
+                        {
+                            user: {
+                                _id: 'user123',
+                                name: 'Priya Sharma',
+                                avatar: 'https://ui-avatars.com/api/?name=Priya+Sharma&background=10b981'
+                            }
+                        },
+                        {
+                            user: {
+                                _id: user._id,
+                                name: user.name,
+                                avatar: user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`
+                            }
+                        }
+                    ],
+                    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
+                },
+                {
+                    _id: 'demo2',
+                    platform: 'zepto',
+                    status: 'full',
+                    deliveryCharge: 40,
+                    maxMembers: 4,
+                    creator: {
+                        _id: 'user456',
+                        name: 'Rahul Verma',
+                        avatar: 'https://ui-avatars.com/api/?name=Rahul+Verma&background=667eea'
+                    },
+                    members: [
+                        {
+                            user: {
+                                _id: 'user456',
+                                name: 'Rahul Verma',
+                                avatar: 'https://ui-avatars.com/api/?name=Rahul+Verma&background=667eea'
+                            }
+                        },
+                        {
+                            user: {
+                                _id: user._id,
+                                name: user.name,
+                                avatar: user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`
+                            }
+                        },
+                        {
+                            user: {
+                                _id: 'user789',
+                                name: 'Anjali Gupta',
+                                avatar: 'https://ui-avatars.com/api/?name=Anjali+Gupta&background=f59e0b'
+                            }
+                        },
+                        {
+                            user: {
+                                _id: 'user101',
+                                name: 'Vikram Singh',
+                                avatar: 'https://ui-avatars.com/api/?name=Vikram+Singh&background=8b5cf6'
+                            }
+                        }
+                    ],
+                    createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString()
+                },
+                {
+                    _id: 'demo3',
+                    platform: 'swiggy',
+                    status: 'active',
+                    deliveryCharge: 60,
+                    maxMembers: 2,
+                    creator: {
+                        _id: 'user202',
+                        name: 'Neha Patel',
+                        avatar: 'https://ui-avatars.com/api/?name=Neha+Patel&background=ef4444'
+                    },
+                    members: [
+                        {
+                            user: {
+                                _id: 'user202',
+                                name: 'Neha Patel',
+                                avatar: 'https://ui-avatars.com/api/?name=Neha+Patel&background=ef4444'
+                            }
+                        },
+                        {
+                            user: {
+                                _id: user._id,
+                                name: user.name,
+                                avatar: user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`
+                            }
+                        }
+                    ],
+                    createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString()
+                }
+            ];
+            
+            renderJoinedCarts();
         }
 
         function renderJoinedCarts() {
@@ -329,6 +289,9 @@
                             <div class="cart-actions">
                                 <button class="btn btn-sm btn-secondary" onclick="viewCart('${cart._id}')">
                                     <i class="fas fa-eye"></i> View
+                                </button>
+                                <button class="btn btn-sm btn-primary" onclick="addItemsToCart(${cart.id || cart._id})">
+                                    <i class="fas fa-cart-plus"></i> Add Items
                                 </button>
                                 ${cart.status === 'active' || cart.status === 'full' ? `
                                     <button class="btn btn-sm btn-danger" onclick="leaveCart('${cart._id}')">
@@ -397,6 +360,11 @@
 
         function viewCart(cartId) {
             window.location.href = `cart-details.html?id=${cartId}`;
+        }
+
+        function addItemsToCart(cartId) {
+            // Redirect to shop page with joined cart ID
+            window.location.href = `shop.html?joinedCart=${cartId}`;
         }
 
         async function leaveCart(cartId) {

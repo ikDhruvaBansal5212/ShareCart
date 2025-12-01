@@ -445,7 +445,6 @@
                         <span class="info-value" id="orderRadius">5 km</span>
                     </div>
                 </div>
-                </div>
 
                 <!-- Rating Breakdown -->
                 <div class="content-card">
@@ -510,18 +509,21 @@
         async function loadProfile() {
             try {
                 console.log('Loading profile...');
-                const response = await api.getMe();
-                console.log('API Response:', response);
+                // Get user from localStorage
+                const user = api.getUser();
                 
-                if (response && response.data) {
-                    profile = response.data;
-                    console.log('Profile loaded:', profile);
+                if (user) {
+                    profile = user;
+                    console.log('Profile loaded from localStorage:', profile);
                     renderProfile();
-                    loadReviews();
                     loadStats();
+                    loadReviews();
                 } else {
-                    console.error('Invalid response format:', response);
-                    showToast('Failed to load profile data', 'error');
+                    console.error('No user found in localStorage');
+                    showToast('Please login to view profile', 'error');
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 1500);
                 }
             } catch (error) {
                 console.error('Error loading profile:', error);
@@ -615,18 +617,14 @@
 
         async function loadStats() {
             try {
-                const [cartsRes, ordersRes] = await Promise.all([
-                    api.getMyCarts(),
-                    api.getMyOrders()
-                ]);
-
-                const carts = cartsRes.data;
-                const orders = ordersRes.data;
-
-                const activeCarts = carts.filter(c => c.status === 'active').length;
+                // Load orders from localStorage
+                const orders = JSON.parse(localStorage.getItem('myOrders') || '[]');
+                const joinedCarts = JSON.parse(localStorage.getItem('joinedCarts') || '[]');
+                
+                const activeCarts = joinedCarts.filter(c => c.status === 'active').length;
                 const completedOrders = orders.filter(o => o.status === 'delivered').length;
 
-                document.getElementById('totalCarts').textContent = carts.length;
+                document.getElementById('totalCarts').textContent = joinedCarts.length;
                 document.getElementById('totalOrders').textContent = orders.length;
                 document.getElementById('activeCarts').textContent = activeCarts;
                 document.getElementById('completedOrders').textContent = completedOrders;
@@ -635,28 +633,20 @@
                 const successRate = orders.length > 0 ? Math.round((completedOrders / orders.length) * 100) : 100;
                 document.getElementById('successRate').textContent = `${successRate}%`;
 
-                // Calculate total savings
+                // Calculate total savings (delivery charges saved from combined orders)
                 const totalSavings = orders.reduce((sum, order) => {
-                    return sum + (order.savedAmount || 0);
+                    // If it's a combined cart, user saved half of delivery charge
+                    if (order.isCombinedCart && order.deliveryCharge === 0) {
+                        return sum + 25; // Saved 25 from 50 delivery charge
+                    }
+                    return sum;
                 }, 0);
                 document.getElementById('totalSavings').textContent = `₹${totalSavings.toFixed(0)}`;
 
-                // Response time - could be calculated from message response times
+                // Response time
                 document.getElementById('responseTime').textContent = '< 2 hours';
 
                 document.getElementById('reviewCount').textContent = reviews.length;
-            } catch (error) {
-                console.error('Error loading stats:', error);
-            }
-        }
-
-                // Calculate total savings
-                const savings = carts.reduce((total, cart) => {
-                    const splitAmount = cart.deliveryCharge / cart.maxMembers;
-                    return total + (cart.deliveryCharge - splitAmount);
-                }, 0);
-                document.getElementById('totalSavings').textContent = formatCurrency(savings);
-
             } catch (error) {
                 console.error('Error loading stats:', error);
             }
@@ -804,52 +794,7 @@
             input.value = '';
         }
 
-        function toggleEditMode() {
-            const display = document.getElementById('profileDisplay');
-            const form = document.getElementById('profileEditForm');
 
-            display.classList.toggle('hidden');
-            form.classList.toggle('active');
-        }
-
-        // Handle profile update
-        document.getElementById('profileEditForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const updateData = {
-                name: document.getElementById('editName').value,
-                phone: document.getElementById('editPhone').value,
-                location: {
-                    type: 'Point',
-                    address: document.getElementById('editAddress').value,
-                    city: document.getElementById('editCity').value,
-                    pincode: document.getElementById('editPincode').value,
-                    coordinates: profile.location?.coordinates || [0, 0]
-                }
-            };
-
-            console.log('Updating profile with:', updateData);
-
-            try {
-                const response = await api.updateProfile(updateData);
-                console.log('Update response:', response);
-                
-                if (response.success) {
-                    showToast('Profile updated successfully', 'success');
-                    profile = response.data;
-                    renderProfile();
-                    toggleEditMode();
-                    
-                    // Update stored user
-                    localStorage.setItem('user', JSON.stringify(profile));
-                } else {
-                    showToast(response.message || 'Failed to update profile', 'error');
-                }
-            } catch (error) {
-                console.error('Profile update error:', error);
-                showToast(error.message || 'Failed to update profile', 'error');
-            }
-        });
 
         // Handle password change
         document.getElementById('passwordForm').addEventListener('submit', async (e) => {

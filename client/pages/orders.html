@@ -108,6 +108,68 @@
             margin-top: 16px;
         }
 
+        .order-items {
+            margin-top: 16px;
+            padding: 16px;
+            background: var(--light);
+            border-radius: 8px;
+        }
+
+        .order-items h4 {
+            margin: 0 0 12px 0;
+            font-size: 16px;
+            color: var(--dark);
+        }
+
+        .items-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .order-item:last-child {
+            border-bottom: none;
+        }
+
+        .delivery-info {
+            margin-top: 16px;
+            padding: 12px;
+            background: var(--light);
+            border-radius: 8px;
+        }
+
+        .delivery-info h4 {
+            margin: 0 0 8px 0;
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        .delivery-info p {
+            margin: 0;
+            color: var(--dark);
+        }
+
+        .order-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 2px solid var(--border);
+        }
+
+        .payment-status {
+            font-size: 14px;
+            color: var(--gray);
+        }
+
         .filters {
             background: white;
             padding: 20px;
@@ -121,80 +183,368 @@
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 16px;
         }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            max-height: 90vh;
+            overflow-y: auto;
+            width: 100%;
+        }
+
+        .tracking-timeline {
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .tracking-stage {
+            position: relative;
+            padding-bottom: 32px;
+        }
+
+        .tracking-stage:last-child {
+            padding-bottom: 0;
+        }
+
+        .tracking-stage::before {
+            content: '';
+            position: absolute;
+            left: -29px;
+            top: 30px;
+            width: 2px;
+            height: calc(100% - 10px);
+            background: var(--border);
+        }
+
+        .tracking-stage:last-child::before {
+            display: none;
+        }
+
+        .tracking-stage.completed::before {
+            background: var(--primary-color);
+        }
+
+        .stage-marker {
+            position: absolute;
+            left: -40px;
+            top: 0;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--light);
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: var(--gray);
+        }
+
+        .tracking-stage.completed .stage-marker {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+
+        .stage-content {
+            padding-left: 8px;
+        }
+
+        .stage-title {
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--dark);
+            margin-bottom: 4px;
+        }
+
+        .stage-time {
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        .tracking-stage.completed .stage-title {
+            color: var(--primary-color);
+        }
+
+        /* Live Tracking Page Styles */
+        .tracking-page {
+            display: none;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .tracking-page.active {
+            display: block;
+        }
+
+        .tracking-header {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 32px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .tracking-header h1 {
+            margin: 0 0 8px 0;
+            font-size: 32px;
+        }
+
+        .tracking-header .order-number {
+            font-size: 20px;
+            opacity: 0.9;
+        }
+
+        .tracking-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 968px) {
+            .tracking-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .tracking-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .tracking-card h3 {
+            margin: 0 0 20px 0;
+            font-size: 20px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .live-tracking-map {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            min-height: 400px;
+        }
+
+        .map-points {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            margin: 40px 0;
+        }
+
+        .map-point {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            position: relative;
+            z-index: 2;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .map-point.restaurant {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+        }
+
+        .map-point.delivery {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .map-point.active {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            }
+            50% {
+                transform: scale(1.1);
+                box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+            }
+        }
+
+        .map-path {
+            position: absolute;
+            top: 50%;
+            left: 60px;
+            right: 60px;
+            height: 4px;
+            background: #e5e7eb;
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+
+        .map-path-progress {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+            width: 0%;
+            transition: width 2s ease-in-out;
+            position: relative;
+        }
+
+        .delivery-vehicle {
+            position: absolute;
+            right: -20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            animation: moveVehicle 3s ease-in-out infinite;
+        }
+
+        @keyframes moveVehicle {
+            0%, 100% {
+                transform: translateY(-50%) translateX(0);
+            }
+            50% {
+                transform: translateY(-50%) translateX(-10px);
+            }
+        }
+
+        .location-label {
+            margin-top: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .tracking-status-bar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .status-text {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .status-subtext {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .bill-section {
+            border-top: 2px solid var(--border);
+            padding-top: 20px;
+            margin-top: 20px;
+        }
+
+        .bill-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            font-size: 15px;
+        }
+
+        .bill-row.total {
+            border-top: 2px solid var(--border);
+            margin-top: 10px;
+            padding-top: 15px;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .items-section {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .item-group-header {
+            background: var(--light);
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: 600;
+            margin: 10px 0 8px 0;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
 
 
     <div class="container">
-        <div class="page-header">
-            <h1>My Orders</h1>
-            <p>View your order history and payment details</p>
-        </div>
+        <!-- Order List View -->
+        <div id="ordersList">
+            <div class="page-header">
+                <h1><i class="fas fa-box"></i> Track Orders</h1>
+                <p>Track and manage your order history</p>
+            </div>
 
-        <!-- Filters -->
-        <div class="filters">
-            <div class="filter-row">
-                <div class="form-group">
-                    <label for="statusFilter">Status</label>
-                    <select id="statusFilter" class="form-control" onchange="loadOrders()">
-                        <option value="">All Status</option>
-                        <option value="pending">Pending</option>
-                        <option value="completed">Completed</option>
-                        <option value="failed">Failed</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="platformFilter">Platform</label>
-                    <select id="platformFilter" class="form-control" onchange="loadOrders()">
-                        <option value="">All Platforms</option>
-                        <option value="blinkit">Blinkit</option>
-                        <option value="zepto">Zepto</option>
-                        <option value="swiggy">Swiggy Instamart</option>
-                        <option value="bigbasket">BigBasket</option>
-                    </select>
+            <!-- Orders Container -->
+            <div id="ordersContainer">
+                <div class="loading">
+                    <div class="spinner"></div>
                 </div>
             </div>
         </div>
 
-        <!-- Orders Container -->
-        <div id="ordersContainer">
-            <div class="loading">
-                <div class="spinner"></div>
-            </div>
+        <!-- Live Tracking View -->
+        <div id="trackingPage" class="tracking-page">
+            <!-- Content will be dynamically inserted here -->
         </div>
     </div>
 
     <script src="../js/api.js"></script>
     <script>
-        if (!requireAuth()) window.location.href = 'login.html';
-
-        const user = api.getUser();
-        if (user) {
-            document.getElementById('userName').textContent = user.name;
-            document.getElementById('userAvatar').src = user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`;
+        // Ensure user is logged in
+        if (!api || !api.getUser()) {
+            window.location.href = 'login.html';
         }
+        
+        const user = api.getUser();
 
         async function loadOrders() {
-            try {
-                const response = await api.getMyOrders();
-                let orders = response.data;
-
-                // Apply filters
-                const statusFilter = document.getElementById('statusFilter').value;
-                const platformFilter = document.getElementById('platformFilter').value;
-
-                if (statusFilter) {
-                    orders = orders.filter(o => o.status === statusFilter || (o.members && o.members[0]?.paymentStatus === statusFilter));
-                }
-                if (platformFilter) {
-                    orders = orders.filter(o => o.platform === platformFilter);
-                }
-
-                renderOrders(orders);
-            } catch (error) {
-                console.error('Error loading orders:', error);
-                showToast(error.message, 'error');
+            // Load orders from localStorage
+            const localOrders = JSON.parse(localStorage.getItem('myOrders') || '[]');
+            
+            renderOrders(localOrders);
+            
+            // Check if we should auto-track an order
+            const urlParams = new URLSearchParams(window.location.search);
+            const trackOrderId = urlParams.get('track');
+            if (trackOrderId) {
+                setTimeout(() => {
+                    trackOrder(trackOrderId);
+                }, 500);
             }
         }
 
@@ -207,16 +557,15 @@
                         <i class="fas fa-receipt"></i>
                         <h3>No orders found</h3>
                         <p>Your order history will appear here</p>
-                        <a href="shared-carts.html" class="btn btn-primary">View Shared Carts</a>
+                        <a href="shop.html" class="btn btn-primary">Start Shopping</a>
                     </div>
                 `;
                 return;
             }
 
             container.innerHTML = orders.map(order => {
-                const userMember = order.members?.find(m => m.user?._id === user._id || m.user === user._id) || order.members?.[0];
-                const paymentStatus = userMember?.paymentStatus || order.status;
-                const splitAmount = order.deliveryCharge / (order.members?.length || 1);
+                const paymentStatus = order.paymentStatus || order.status;
+                const itemCount = order.items?.length || 0;
 
                 return `
                     <div class="order-card">
@@ -230,31 +579,50 @@
                                 </div>
                             </div>
                             <div>
-                                <span class="platform-badge platform-${order.platform}">${order.platform}</span>
-                                <span class="badge badge-${order.status === 'delivered' ? 'success' : order.status === 'cancelled' ? 'danger' : 'warning'} ml-2">
+                                ${order.isCombinedCart ? '<span class="badge badge-success" style="background: #10b981; margin-right: 8px;"><i class="fas fa-users"></i> Combined</span>' : ''}
+                                <span class="platform-badge platform-${order.platform?.toLowerCase() || 'sharecart'}">${order.platform || 'ShareCart'}</span>
+                                <span class="badge badge-${order.status === 'delivered' ? 'success' : order.status === 'cancelled' ? 'danger' : 'warning'}" style="margin-left: 8px;">
                                     ${order.status}
                                 </span>
                             </div>
                         </div>
 
                         <div class="order-body">
+                            ${order.isCombinedCart ? `
+                            <div class="order-info-item" style="grid-column: 1 / -1; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;">
+                                <div class="label" style="color: rgba(255,255,255,0.9);">Combined Cart with</div>
+                                <div class="value" style="color: white;"><i class="fas fa-users"></i> ${order.combinedWith || 'Another User'}</div>
+                            </div>
+                            ` : ''}
+                            <div class="order-info-item">
+                                <div class="label">Subtotal</div>
+                                <div class="value">${formatCurrency(order.subtotal || order.totalAmount)}</div>
+                            </div>
+                            ${order.discount > 0 ? `
+                            <div class="order-info-item" style="background: #d1fae5;">
+                                <div class="label" style="color: #065f46;">Discount</div>
+                                <div class="value" style="color: #065f46;">-${formatCurrency(order.discount)}</div>
+                            </div>
+                            ` : ''}
+                            <div class="order-info-item">
+                                <div class="label">Delivery Charge</div>
+                                <div class="value">${order.deliveryCharge === 0 ? 'FREE' : formatCurrency(order.deliveryCharge)}</div>
+                            </div>
                             <div class="order-info-item">
                                 <div class="label">Total Amount</div>
                                 <div class="value">${formatCurrency(order.totalAmount)}</div>
                             </div>
                             <div class="order-info-item">
-                                <div class="label">Delivery Charge</div>
-                                <div class="value">${formatCurrency(order.deliveryCharge)}</div>
-                            </div>
-                            <div class="order-info-item">
-                                <div class="label">Your Split</div>
-                                <div class="value">${formatCurrency(splitAmount)}</div>
-                            </div>
-                            <div class="order-info-item">
                                 <div class="label">Items</div>
-                                <div class="value">${order.items?.length || 0} items</div>
+                                <div class="value">${itemCount} items</div>
                             </div>
                         </div>
+
+                        ${order.promoCode ? `
+                        <div style="margin-top: 12px; padding: 12px; background: #d1fae5; border-radius: 8px; color: #065f46; font-size: 14px;">
+                            <i class="fas fa-tag"></i> <strong>Promo Applied:</strong> ${order.promoCode} (-₹${order.discount || 0})
+                        </div>
+                        ` : ''}
 
                         ${order.items && order.items.length > 0 ? `
                         <div class="order-items">
@@ -277,14 +645,21 @@
                         </div>
                         ` : ''}
 
+                        ${order.paymentMethod ? `
+                        <div class="delivery-info" style="margin-top: 12px;">
+                            <h4>Payment Method</h4>
+                            <p><i class="fas fa-${order.paymentMethod === 'cod' ? 'money-bill-wave' : 'credit-card'}"></i> ${order.paymentMethod === 'cod' ? 'Cash on Delivery' : order.paymentMethod.toUpperCase()}</p>
+                        </div>
+                        ` : ''}
+
                         <div class="order-footer">
                             <span class="payment-status">
                                 Payment: <span class="badge badge-${paymentStatus === 'paid' || paymentStatus === 'completed' ? 'success' : 'warning'}">
                                     ${paymentStatus}
                                 </span>
                             </span>
-                            ${order.status === 'pending' || order.status === 'confirmed' ? `
-                                <button class="btn btn-sm btn-outline" onclick="trackOrder('${order._id}')">
+                            ${order.status !== 'delivered' && order.status !== 'cancelled' ? `
+                                <button class="btn btn-sm btn-outline" onclick="trackOrder('${order._id || order.orderNumber}')">
                                     <i class="fas fa-truck"></i> Track Order
                                 </button>
                             ` : ''}
@@ -293,111 +668,257 @@
                 `;
             }).join('');
         }
-                                    </div>
-                                `).join('') : '<p class="text-center">No payment details</p>'}
-                            </div>
 
-                            <!-- Payment Summary -->
-                            <div class="payment-summary">
-                                <div class="summary-row">
-                                    <span>Payments Received</span>
-                                    <span>${paidCount}/${order.paymentDetails?.length || 0}</span>
-                                </div>
-                                <div class="summary-row">
-                                    <span>Total Amount</span>
-                                    <span>${formatCurrency(order.totalAmount)}</span>
-                                </div>
-                                <div class="summary-row total">
-                                    <span>Your Amount</span>
-                                    <span>${formatCurrency(splitAmount)}</span>
-                                </div>
-                            </div>
-
-                            <!-- Actions -->
-                            <div class="order-actions">
-                                ${userPayment && userPayment.status !== 'completed' ? `
-                                    <button class="btn btn-primary" onclick="payNow('${order._id}', ${splitAmount})">
-                                        <i class="fas fa-credit-card"></i> Pay Now
-                                    </button>
-                                ` : ''}
-                                <button class="btn btn-secondary" onclick="viewCart('${cart._id}')">
-                                    <i class="fas fa-eye"></i> View Cart
-                                </button>
-                                ${order.paymentStatus === 'completed' && cart.status === 'delivered' ? `
-                                    <button class="btn btn-outline" onclick="writeReview('${cart.createdBy._id}')">
-                                        <i class="fas fa-star"></i> Write Review
-                                    </button>
-                                ` : ''}
-                            </div>
-                        ` : '<p>Cart information unavailable</p>'}
+        function trackOrder(orderId) {
+            // Find order in localStorage
+            const orders = JSON.parse(localStorage.getItem('myOrders') || '[]');
+            const order = orders.find(o => o._id === orderId || o.orderNumber === orderId);
+            
+            if (!order) {
+                showToast('Order not found!', 'error');
+                return;
+            }
+            
+            // Hide orders list and show tracking page
+            document.getElementById('ordersList').style.display = 'none';
+            const trackingPage = document.getElementById('trackingPage');
+            trackingPage.classList.add('active');
+            
+            // Calculate current stage progress
+            const completedStages = order.trackingStages.filter(s => s.completed).length;
+            const totalStages = order.trackingStages.length;
+            const progressPercentage = (completedStages / totalStages) * 100;
+            
+            // Current status message
+            let currentStatus = 'Order Confirmed';
+            let statusSubtext = 'Your order is being prepared';
+            
+            if (completedStages >= 3) {
+                currentStatus = 'Out for Delivery';
+                statusSubtext = 'Your delivery partner is on the way';
+            } else if (completedStages >= 4) {
+                currentStatus = 'Delivered';
+                statusSubtext = 'Your order has been delivered';
+            }
+            
+            const user = api.getUser();
+            
+            // Generate tracking page HTML
+            trackingPage.innerHTML = `
+                <div class="tracking-header">
+                    <h1><i class="fas fa-check-circle"></i> Order Placed Successfully!</h1>
+                    <div class="order-number">Order #${order.orderNumber}</div>
+                    <div style="margin-top: 12px; font-size: 14px; opacity: 0.9;">
+                        ${new Date(order.createdAt).toLocaleString('en-US', { 
+                            weekday: 'long', 
+                            year: 'numeric', 
+                            month: 'short', 
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        })}
                     </div>
-                `;
-            }).join('');
-        }
+                </div>
 
-        function viewCart(cartId) {
-            window.location.href = `cart-details.html?id=${cartId}`;
-        }
+                <div class="tracking-status-bar">
+                    <div class="status-text">${currentStatus}</div>
+                    <div class="status-subtext">${statusSubtext}</div>
+                </div>
 
-        async function payNow(orderId, amount) {
-            try {
-                showToast('Initiating payment...', 'info');
-                
-                // Create payment order
-                const orderResponse = await api.createPaymentOrder(orderId);
-                
-                if (orderResponse.success) {
-                    const options = {
-                        key: 'YOUR_RAZORPAY_KEY', // This should come from backend
-                        amount: amount * 100, // Convert to paise
-                        currency: 'INR',
-                        name: 'ShareCart',
-                        description: `Order Payment - ${orderId}`,
-                        order_id: orderResponse.data.razorpayOrderId,
-                        handler: async function (response) {
-                            try {
-                                // Verify payment
-                                const verifyResponse = await api.verifyPayment({
-                                    orderId: orderId,
-                                    razorpayOrderId: response.razorpay_order_id,
-                                    razorpayPaymentId: response.razorpay_payment_id,
-                                    razorpaySignature: response.razorpay_signature
-                                });
+                <div class="tracking-grid">
+                    <!-- Live Tracking Map -->
+                    <div class="tracking-card">
+                        <h3><i class="fas fa-map-marked-alt"></i> Live Tracking</h3>
+                        <div class="live-tracking-map">
+                            <div class="map-points">
+                                <div>
+                                    <div class="map-point restaurant">
+                                        <i class="fas fa-store"></i>
+                                    </div>
+                                    <div class="location-label">Store</div>
+                                </div>
+                                
+                                <div class="map-path">
+                                    <div class="map-path-progress" style="width: ${progressPercentage}%;">
+                                        ${completedStages < totalStages ? '<div class="delivery-vehicle">🛵</div>' : ''}
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <div class="map-point delivery ${completedStages === totalStages ? 'active' : ''}">
+                                        <i class="fas fa-home"></i>
+                                    </div>
+                                    <div class="location-label">Your Location</div>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 30px; padding: 16px; background: white; border-radius: 8px; text-align: left;">
+                                <div style="font-weight: 600; margin-bottom: 8px; color: var(--dark);">
+                                    <i class="fas fa-map-marker-alt" style="color: var(--primary-color);"></i> Delivery Address
+                                </div>
+                                <div style="font-size: 14px; color: var(--gray);">
+                                    ${order.deliveryLocation.address}<br>
+                                    ${order.deliveryLocation.city}, ${order.deliveryLocation.pincode}
+                                </div>
+                            </div>
 
-                                if (verifyResponse.success) {
-                                    showToast('Payment successful!', 'success');
-                                    loadOrders();
-                                }
-                            } catch (error) {
-                                showToast('Payment verification failed', 'error');
-                            }
-                        },
-                        prefill: {
-                            name: user.name,
-                            email: user.email,
-                            contact: user.phone
-                        },
-                        theme: {
-                            color: '#6366f1'
-                        }
-                    };
+                            <div style="margin-top: 16px; padding: 16px; background: #fef3c7; border-radius: 8px; text-align: left;">
+                                <div style="font-weight: 600; margin-bottom: 4px; color: #92400e;">
+                                    <i class="fas fa-clock"></i> Estimated Delivery
+                                </div>
+                                <div style="font-size: 14px; color: #92400e;">
+                                    ${new Date(order.estimatedDelivery).toLocaleString('en-US', { 
+                                        weekday: 'long',
+                                        month: 'short', 
+                                        day: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                    // Note: In production, you need to include Razorpay SDK
-                    // <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-                    if (typeof Razorpay !== 'undefined') {
-                        const rzp = new Razorpay(options);
-                        rzp.open();
-                    } else {
-                        showToast('Payment gateway not loaded. Please refresh the page.', 'error');
-                    }
+                    <!-- Order Details -->
+                    <div class="tracking-card">
+                        <h3><i class="fas fa-receipt"></i> Order Details</h3>
+                        
+                        <!-- Tracking Timeline -->
+                        <div class="tracking-timeline" style="margin-bottom: 24px;">
+                            ${order.trackingStages.map(stage => `
+                                <div class="tracking-stage ${stage.completed ? 'completed' : ''}">
+                                    <div class="stage-marker">
+                                        ${stage.completed ? '<i class="fas fa-check"></i>' : '<i class="fas fa-circle"></i>'}
+                                    </div>
+                                    <div class="stage-content">
+                                        <div class="stage-title">${stage.status}</div>
+                                        ${stage.timestamp ? `<div class="stage-time">${new Date(stage.timestamp).toLocaleString()}</div>` : ''}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        <div class="bill-section">
+                            <h4 style="margin: 0 0 16px 0;">Items Ordered</h4>
+                            <div class="items-section">
+                                ${order.isCombinedCart && order.creatorItems ? `
+                                    <div class="item-group-header" style="background: #f3f4f6; color: var(--primary-color);">
+                                        <i class="fas fa-user"></i> ${order.combinedWith}'s Items
+                                    </div>
+                                    ${order.creatorItems.map(item => `
+                                        <div class="bill-row">
+                                            <span>${item.name} × ${item.quantity}</span>
+                                            <span>₹${item.price * item.quantity}</span>
+                                        </div>
+                                    `).join('')}
+                                    
+                                    <div class="item-group-header" style="background: #d1fae5; color: #065f46;">
+                                        <i class="fas fa-user"></i> Your Items
+                                    </div>
+                                ` : ''}
+                                
+                                ${order.items.map(item => `
+                                    <div class="bill-row">
+                                        <span>${item.name} × ${item.quantity}</span>
+                                        <span>₹${item.price * item.quantity}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+
+                            <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid var(--border);">
+                                ${order.isCombinedCart && order.creatorItems ? `
+                                    <div class="bill-row">
+                                        <span>${order.combinedWith}'s Subtotal</span>
+                                        <span>₹${order.subtotal - order.mySubtotal}</span>
+                                    </div>
+                                    <div class="bill-row">
+                                        <span>Your Subtotal</span>
+                                        <span>₹${order.mySubtotal}</span>
+                                    </div>
+                                    <div class="bill-row" style="font-weight: 600; border-top: 1px dashed var(--border); padding-top: 10px; margin-top: 8px;">
+                                        <span>Combined Subtotal</span>
+                                        <span>₹${order.subtotal}</span>
+                                    </div>
+                                ` : `
+                                    <div class="bill-row">
+                                        <span>Subtotal</span>
+                                        <span>₹${order.subtotal}</span>
+                                    </div>
+                                `}
+                                
+                                ${order.promoCode && order.discount > 0 ? `
+                                    <div class="bill-row" style="color: #10b981; font-weight: 600;">
+                                        <span><i class="fas fa-tag"></i> Discount (${order.promoCode})</span>
+                                        <span>-₹${order.discount}</span>
+                                    </div>
+                                ` : ''}
+                                
+                                <div class="bill-row">
+                                    <span>Delivery Charge</span>
+                                    <span style="color: ${order.deliveryCharge === 0 ? '#10b981' : 'inherit'}; font-weight: ${order.deliveryCharge === 0 ? '600' : 'normal'};">
+                                        ${order.deliveryCharge === 0 ? 'FREE ✓' : '₹' + order.deliveryCharge}
+                                    </span>
+                                </div>
+                                
+                                <div class="bill-row total">
+                                    <span>Total Amount</span>
+                                    <span>₹${order.totalAmount}</span>
+                                </div>
+                            </div>
+
+                            <div style="margin-top: 16px; padding: 12px; background: var(--light); border-radius: 8px; font-size: 14px;">
+                                <strong>Payment:</strong> ${order.paymentMethod === 'cod' ? 'Cash on Delivery' : order.paymentMethod.toUpperCase()}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 12px; margin-top: 24px; justify-content: center;">
+                    <button class="btn btn-outline" onclick="backToOrders()">
+                        <i class="fas fa-arrow-left"></i> Back to Orders
+                    </button>
+                    <button class="btn btn-primary" onclick="window.location.href='shop.html'">
+                        <i class="fas fa-shopping-cart"></i> Continue Shopping
+                    </button>
+                </div>
+            `;
+            
+            // Animate progress bar
+            setTimeout(() => {
+                const progressBar = document.querySelector('.map-path-progress');
+                if (progressBar) {
+                    progressBar.style.width = progressPercentage + '%';
                 }
-            } catch (error) {
-                showToast(error.message, 'error');
+            }, 100);
+        }
+        
+        function backToOrders() {
+            document.getElementById('ordersList').style.display = 'block';
+            document.getElementById('trackingPage').classList.remove('active');
+            // Clear URL parameters
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+        
+        function closeTrackingModal() {
+            const modal = document.getElementById('trackingModal');
+            if (modal) {
+                modal.remove();
             }
         }
 
-        function writeReview(userId) {
-            window.location.href = `profile.html?review=${userId}`;
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function formatCurrency(amount) {
+            return '₹' + amount;
         }
 
         // Load orders on page load
