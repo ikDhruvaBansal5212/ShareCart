@@ -262,65 +262,57 @@
             loadSharedCarts();
         }
 
-        function loadSharedCarts() {
+        async function loadSharedCarts() {
             const container = document.getElementById('sharedCartsContainer');
             
-            // Mock data - In production, this would come from backend
-            const sharedCarts = [
-                {
-                    id: 1,
-                    user: {
-                        name: 'Rahul Kumar',
-                        location: { city: 'Mumbai', area: 'Andheri West' }
-                    },
-                    items: [
-                        { name: 'Lays Chips', quantity: 2, price: 20 },
-                        { name: 'Coca Cola', quantity: 1, price: 40 },
-                        { name: 'Maggi Noodles', quantity: 2, price: 56 }
-                    ],
-                    currentTotal: 136,
-                    remaining: 114,
-                    distance: 0.5
-                },
-                {
-                    id: 2,
-                    user: {
-                        name: 'Priya Sharma',
-                        location: { city: 'Mumbai', area: 'Andheri East' }
-                    },
-                    items: [
-                        { name: 'Amul Milk', quantity: 1, price: 62 },
-                        { name: 'Bread', quantity: 1, price: 40 },
-                        { name: 'Eggs 6pc', quantity: 1, price: 42 }
-                    ],
-                    currentTotal: 144,
-                    remaining: 106,
-                    distance: 0.8
-                },
-                {
-                    id: 3,
-                    user: {
-                        name: 'Amit Patel',
-                        location: { city: 'Mumbai', area: 'Versova' }
-                    },
-                    items: [
-                        { name: 'Colgate', quantity: 1, price: 85 },
-                        { name: 'Shower Gel', quantity: 2, price: 120 },
-                        { name: 'Shampoo', quantity: 1, price: 120 }
-                    ],
-                    currentTotal: 200,
-                    remaining: 50,
-                    distance: 1.2
+            // Show loading state
+            container.innerHTML = `
+                <div class="loading-state">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 48px; color: var(--primary);"></i>
+                    <p style="margin-top: 20px; color: var(--gray);">Loading shared carts...</p>
+                </div>
+            `;
+            
+            let allCarts = [];
+            
+            try {
+                // Fetch real carts from backend API
+                const response = await api.getCarts();
+                console.log('Shared carts response:', response);
+                let sharedCarts = response.data || [];
+                
+                // Add mySharedCart if it exists
+                allCarts = [...sharedCarts];
+                if (mySharedCart) {
+                    allCarts.unshift(mySharedCart);
                 }
-            ];
-
-            let allCarts = [...sharedCarts];
-            if (mySharedCart) {
-                allCarts.unshift(mySharedCart);
+                
+                // Calculate cart totals and format data
+                allCarts = allCarts.map(cart => {
+                    const itemsTotal = (cart.items || []).reduce((sum, item) => 
+                        sum + (item.price * item.quantity), 0);
+                    const remaining = 250 - itemsTotal; // Assuming 250 is minimum order
+                    
+                    return {
+                        ...cart,
+                        id: cart._id,
+                        user: cart.creator || { name: 'Unknown', location: cart.location || {} },
+                        items: cart.items || [],
+                        currentTotal: itemsTotal,
+                        remaining: remaining > 0 ? remaining : 0,
+                        distance: cart.distance || 0
+                    };
+                });
+            } catch (error) {
+                console.error('Error loading shared carts:', error);
+                // If API fails, show only mySharedCart if available
+                if (mySharedCart) {
+                    allCarts = [mySharedCart];
+                }
             }
-
+            
+            // Render the carts
             if (allCarts.length === 0) {
-                container.innerHTML = `
                     <div class="empty-state">
                         <i class="fas fa-shopping-cart"></i>
                         <h2>No Shared Carts Nearby</h2>
