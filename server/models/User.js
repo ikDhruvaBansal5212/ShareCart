@@ -39,19 +39,19 @@ const userSchema = new mongoose.Schema({
     },
     coordinates: {
       type: [Number],
-      default: [0, 0]
+      default: [77.5946, 12.9716] // Default to Bangalore
     },
     address: {
       type: String,
-      default: ''
+      default: 'Bangalore'
     },
     city: {
       type: String,
-      default: ''
+      default: 'Bangalore'
     },
     pincode: {
       type: String,
-      default: ''
+      default: '560001'
     }
   },
   avatar: {

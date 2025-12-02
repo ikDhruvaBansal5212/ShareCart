@@ -426,8 +426,8 @@
                     <div class="filter-group">
                         <label for="sortByFilter">Sort By</label>
                         <select id="sortByFilter">
+                            <option value="newest" selected>Newest First</option>
                             <option value="distance">Nearest First</option>
-                            <option value="newest">Newest First</option>
                             <option value="members">Most Members</option>
                             <option value="items">Most Items</option>
                         </select>
@@ -475,7 +475,7 @@
         let currentPage = 1;
         let currentFilters = {
             platform: 'all',
-            sortBy: 'distance',
+            sortBy: 'newest',
             maxDistance: '',
             limit: 10
         };
@@ -539,7 +539,7 @@
         // Reset filters
         function resetFilters() {
             document.getElementById('platformFilter').value = 'all';
-            document.getElementById('sortByFilter').value = 'distance';
+            document.getElementById('sortByFilter').value = 'newest';
             document.getElementById('distanceFilter').value = '';
             document.getElementById('limitFilter').value = '10';
             applyFilters();
@@ -629,15 +629,28 @@
                 const userData = await api.getMe();
                 myLocation = userData.data.location;
                 console.log('User location loaded:', myLocation);
+                
+                // Validate location
+                if (!myLocation || !myLocation.coordinates || 
+                    myLocation.coordinates[0] === 0 || myLocation.coordinates[1] === 0) {
+                    console.warn('User location not set, using default (Bangalore)');
+                    myLocation = {
+                        type: 'Point',
+                        coordinates: [77.5946, 12.9716],
+                        address: 'Bangalore',
+                        city: 'Bangalore',
+                        pincode: '560001'
+                    };
+                }
             } catch (error) {
                 console.error('Error getting user data:', error);
                 // Provide default location if API fails
                 myLocation = {
                     type: 'Point',
-                    coordinates: [72.8777, 19.0760],
-                    address: 'Not specified',
-                    city: 'Mumbai',
-                    pincode: '400001'
+                    coordinates: [77.5946, 12.9716],
+                    address: 'Bangalore',
+                    city: 'Bangalore',
+                    pincode: '560001'
                 };
             }
 

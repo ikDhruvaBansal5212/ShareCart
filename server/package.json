@@ -11,6 +11,7 @@
     "db-status": "node scripts/db-status.js",
     "test-api": "node scripts/test-api.js",
     "fix-carts": "node scripts/fixCarts.js",
+    "test-cart-api": "node test-cart-api.js",
     "frontend": "node frontend-server.js"
   },
   "keywords": ["cart-sharing", "delivery", "split-payments"],

@@ -26,14 +26,19 @@ exports.getCarts = async (req, res, next) => {
       maxDistance, 
       city, 
       status,
-      sortBy = 'distance',
+      sortBy = 'newest',
       page = 1, 
       limit = 10,
       minItems,
       maxItems
     } = req.query;
     
-    const userLocation = req.user.location.coordinates;
+    // Get user location if available, otherwise use default
+    const userLocation = req.user?.location?.coordinates || [77.5946, 12.9716]; // Default to Bangalore
+    const hasValidLocation = req.user?.location?.coordinates && 
+                            req.user.location.coordinates[0] !== 0 && 
+                            req.user.location.coordinates[1] !== 0;
+    
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
     // Build query
@@ -67,26 +72,33 @@ exports.getCarts = async (req, res, next) => {
       .populate('creator', 'name avatar rating phone')
       .populate('members.user', 'name avatar rating')
       .sort({ createdAt: -1 })
-      .limit(parseInt(limit) * 3) // Get more to filter by distance
+      .limit(hasValidLocation ? parseInt(limit) * 3 : parseInt(limit) * 2) // Get more if filtering by distance
       .lean();
 
-    // Calculate distance and add to each cart
+    // Calculate distance and add to each cart (only if valid location)
     carts = carts.map(cart => {
-      const distance = calculateDistance(
-        userLocation[1], userLocation[0],
-        cart.location.coordinates[1], cart.location.coordinates[0]
-      );
+      let distance = 0;
+      
+      if (hasValidLocation && cart.location?.coordinates) {
+        distance = calculateDistance(
+          userLocation[1], userLocation[0],
+          cart.location.coordinates[1], cart.location.coordinates[0]
+        );
+      }
+      
       return {
         ...cart,
         distance: Math.round(distance * 10) / 10
       };
     });
 
-    // Filter by maxDistance
-    if (maxDistance) {
-      carts = carts.filter(cart => cart.distance <= parseFloat(maxDistance));
-    } else {
-      carts = carts.filter(cart => cart.distance <= cart.maxDistance);
+    // Filter by maxDistance (only if user has valid location)
+    if (hasValidLocation) {
+      if (maxDistance) {
+        carts = carts.filter(cart => cart.distance <= parseFloat(maxDistance));
+      } else {
+        carts = carts.filter(cart => cart.distance <= (cart.maxDistance || 10));
+      }
     }
 
     // Filter by item count range
@@ -102,7 +114,11 @@ exports.getCarts = async (req, res, next) => {
     // Sort carts
     switch(sortBy) {
       case 'distance':
-        carts.sort((a, b) => a.distance - b.distance);
+        if (hasValidLocation) {
+          carts.sort((a, b) => a.distance - b.distance);
+        } else {
+          carts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        }
         break;
       case 'newest':
         carts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -114,7 +130,7 @@ exports.getCarts = async (req, res, next) => {
         carts.sort((a, b) => (b.items?.length || 0) - (a.items?.length || 0));
         break;
       default:
-        carts.sort((a, b) => a.distance - b.distance);
+        carts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     }
 
     // Apply pagination after filtering
@@ -201,21 +217,30 @@ exports.createCart = async (req, res, next) => {
     };
 
     // Ensure location has all required fields
-    if (cartData.location) {
+    if (cartData.location && cartData.location.coordinates) {
       cartData.location = {
         type: 'Point',
-        coordinates: cartData.location.coordinates || req.user.location.coordinates,
-        address: cartData.location.address || req.user.location.address || 'Not specified',
-        city: cartData.location.city || req.user.location.city || 'Not specified',
-        pincode: cartData.location.pincode || req.user.location.pincode || '000000'
+        coordinates: cartData.location.coordinates,
+        address: cartData.location.address || req.user?.location?.address || 'Not specified',
+        city: cartData.location.city || req.user?.location?.city || 'Not specified',
+        pincode: cartData.location.pincode || req.user?.location?.pincode || '000000'
       };
-    } else if (req.user.location) {
+    } else if (req.user?.location?.coordinates) {
       cartData.location = {
         type: 'Point',
         coordinates: req.user.location.coordinates,
         address: req.user.location.address || 'Not specified',
         city: req.user.location.city || 'Not specified',
         pincode: req.user.location.pincode || '000000'
+      };
+    } else {
+      // Fallback to default location (Bangalore)
+      cartData.location = {
+        type: 'Point',
+        coordinates: [77.5946, 12.9716],
+        address: 'Not specified',
+        city: 'Bangalore',
+        pincode: '560001'
       };
     }
     
