@@ -198,6 +198,28 @@
         .my-shared-cart .progress-fill {
             background: rgba(255,255,255,0.8);
         }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 <body>
@@ -220,6 +242,30 @@
     <script>
         let myLocation = null;
         let mySharedCart = null;
+
+        // Toast notification function
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+                color: white;
+                padding: 16px 24px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
 
         async function init() {
             // Get user location first (critical for cart creation)
@@ -380,6 +426,7 @@
             
             // Render the carts
             if (allCarts.length === 0) {
+                container.innerHTML = `
                     <div class="empty-state">
                         <i class="fas fa-shopping-cart"></i>
                         <h2>No Shared Carts Nearby</h2>
@@ -447,7 +494,7 @@
                             </div>
                         ` : `
                             <div class="cart-footer">
-                                <button class="btn-add-items" onclick="addToSharedCart(${cart.id})">
+                                <button class="btn-add-items" onclick="addToSharedCart('${cart._id || cart.id}')">
                                     <i class="fas fa-plus-circle"></i> Add My Items & Complete Order
                                 </button>
                             </div>
@@ -457,124 +504,33 @@
             }).join('');
         }
 
-        function addToSharedCart(cartId) {
+        async function addToSharedCart(cartId) {
             // Confirm joining the cart
-            if (confirm('Join this shared cart? You can add your items to help complete the order and split delivery charges.')) {
-                // Save the joined cart to my carts in localStorage
-                const joinedCarts = JSON.parse(localStorage.getItem('joinedCarts') || '[]');
+            if (!confirm('Join this shared cart? You can add your items to help complete the order and split delivery charges.')) {
+                return;
+            }
+
+            try {
+                showToast('Joining cart...', 'info');
                 
-                // Find the cart details
-                const allCarts = [
-                    {
-                        id: 1,
-                        user: {
-                            name: 'Rahul Kumar',
-                            location: { city: 'Mumbai', area: 'Andheri West' }
-                        },
-                        items: [
-                            { name: 'Lays Chips', quantity: 2, price: 20 },
-                            { name: 'Coca Cola', quantity: 1, price: 40 },
-                            { name: 'Maggi Noodles', quantity: 2, price: 56 }
-                        ],
-                        currentTotal: 136,
-                        remaining: 114,
-                        distance: 0.5
-                    },
-                    {
-                        id: 2,
-                        user: {
-                            name: 'Priya Sharma',
-                            location: { city: 'Mumbai', area: 'Andheri East' }
-                        },
-                        items: [
-                            { name: 'Amul Milk', quantity: 1, price: 62 },
-                            { name: 'Bread', quantity: 1, price: 40 },
-                            { name: 'Eggs 6pc', quantity: 1, price: 42 }
-                        ],
-                        currentTotal: 144,
-                        remaining: 106,
-                        distance: 0.8
-                    },
-                    {
-                        id: 3,
-                        user: {
-                            name: 'Amit Patel',
-                            location: { city: 'Mumbai', area: 'Versova' }
-                        },
-                        items: [
-                            { name: 'Colgate', quantity: 1, price: 85 },
-                            { name: 'Shower Gel', quantity: 2, price: 120 },
-                            { name: 'Shampoo', quantity: 1, price: 120 }
-                        ],
-                        currentTotal: 200,
-                        remaining: 50,
-                        distance: 1.2
-                    }
-                ];
+                // Call the real API to join the cart
+                const response = await api.joinCart(cartId);
+                console.log('Joined cart:', response);
                 
-                const selectedCart = allCarts.find(c => c.id === cartId);
-                
-                if (selectedCart) {
-                    // Check if already joined
-                    const alreadyJoined = joinedCarts.find(c => c.id === cartId);
-                    if (alreadyJoined) {
-                        showToast('You have already joined this cart! Redirecting to shop...', 'info');
-                        // Set the active joined cart and redirect to shop
-                        localStorage.setItem('activeJoinedCart', JSON.stringify(alreadyJoined));
-                        setTimeout(() => {
-                            window.location.href = `shop.html?joinedCart=${cartId}`;
-                        }, 1000);
-                        return;
-                    }
+                if (response.success) {
+                    showToast('Successfully joined the cart!', 'success');
                     
-                    // Add current user to the cart
-                    const user = api.getUser();
-                    const joinedCart = {
-                        _id: 'cart_' + cartId + '_' + Date.now(),
-                        id: cartId,
-                        platform: 'blinkit',
-                        status: 'active',
-                        deliveryCharge: 50,
-                        maxMembers: 4,
-                        creator: {
-                            _id: 'creator_' + cartId,
-                            name: selectedCart.user.name,
-                            avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedCart.user.name)}&background=667eea`
-                        },
-                        members: [
-                            {
-                                user: {
-                                    _id: 'creator_' + cartId,
-                                    name: selectedCart.user.name,
-                                    avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedCart.user.name)}&background=667eea`
-                                }
-                            },
-                            {
-                                user: {
-                                    _id: user._id || user.email,
-                                    name: user.name,
-                                    avatar: user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`
-                                }
-                            }
-                        ],
-                        createdAt: new Date().toISOString()
-                    };
-                    
-                    joinedCarts.push(joinedCart);
-                    localStorage.setItem('joinedCarts', JSON.stringify(joinedCarts));
-                    
-                    // Set as active joined cart
-                    localStorage.setItem('activeJoinedCart', JSON.stringify(joinedCart));
-                    
-                    showToast('Successfully joined! Redirecting to shop to add your items...', 'success');
-                    
-                    // Redirect to shop page with joined cart ID
+                    // Redirect to shop page to add items
                     setTimeout(() => {
                         window.location.href = `shop.html?joinedCart=${cartId}`;
-                    }, 1500);
+                    }, 1000);
                 } else {
-                    showToast('Cart not found', 'error');
+                    throw new Error(response.message || 'Failed to join cart');
                 }
+            } catch (error) {
+                console.error('Error joining cart:', error);
+                const errorMsg = error.response?.data?.message || error.message || 'Failed to join cart';
+                showToast(errorMsg, 'error');
             }
         }
 
