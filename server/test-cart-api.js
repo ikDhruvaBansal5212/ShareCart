@@ -1,8 +1,8 @@
 const axios = require('axios');
 
 // Configuration
-const API_URL = 'http://localhost:5000/api';
-const FRONTEND_URL = 'http://localhost:5000';
+const API_URL = 'https://sharecart.onrender.com/api';
+const FRONTEND_URL = 'https://share-cart-sy7v.vercel.app';
 
 // Test user credentials
 const testUser = {
