@@ -683,8 +683,7 @@
                     user: { name: 'Priya Sharma', location: { area: 'Koramangala', city: 'Bangalore' } },
                     members: [{ user: { name: 'Priya Sharma' } }],
                     maxMembers: 4,
-                    deliveryCharge: 50,
-                    isDemo: true
+                    deliveryCharge: 50
                 },
                 {
                     _id: 'demo-2',
@@ -704,8 +703,7 @@
                         { user: { name: 'Sneha K' } }
                     ],
                     maxMembers: 4,
-                    deliveryCharge: 50,
-                    isDemo: true
+                    deliveryCharge: 50
                 },
                 {
                     _id: 'demo-3',
@@ -723,8 +721,7 @@
                     user: { name: 'Sneha Patel', location: { area: 'Whitefield', city: 'Bangalore' } },
                     members: [{ user: { name: 'Sneha Patel' } }],
                     maxMembers: 3,
-                    deliveryCharge: 50,
-                    isDemo: true
+                    deliveryCharge: 50
                 },
                 {
                     _id: 'demo-4',
@@ -745,8 +742,7 @@
                         { user: { name: 'Rajesh T' } }
                     ],
                     maxMembers: 4,
-                    deliveryCharge: 50,
-                    isDemo: true
+                    deliveryCharge: 50
                 },
                 {
                     _id: 'demo-5',
@@ -763,8 +759,7 @@
                     user: { name: 'Ananya Singh', location: { area: 'Jayanagar', city: 'Bangalore' } },
                     members: [{ user: { name: 'Ananya Singh' } }],
                     maxMembers: 4,
-                    deliveryCharge: 50,
-                    isDemo: true
+                    deliveryCharge: 50
                 },
                 {
                     _id: 'demo-6',
@@ -781,8 +776,7 @@
                     user: { name: 'Vikram Reddy', location: { area: 'BTM Layout', city: 'Bangalore' } },
                     members: [{ user: { name: 'Vikram Reddy' } }],
                     maxMembers: 4,
-                    deliveryCharge: 50,
-                    isDemo: true
+                    deliveryCharge: 50
                 },
                 {
                     _id: 'demo-7',
@@ -801,8 +795,7 @@
                         { user: { name: 'Karthik S' } }
                     ],
                     maxMembers: 3,
-                    deliveryCharge: 50,
-                    isDemo: true
+                    deliveryCharge: 50
                 },
                 {
                     _id: 'demo-8',
@@ -819,8 +812,7 @@
                     user: { name: 'Arjun Mehta', location: { area: 'Electronic City', city: 'Bangalore' } },
                     members: [{ user: { name: 'Arjun Mehta' } }],
                     maxMembers: 4,
-                    deliveryCharge: 50,
-                    isDemo: true
+                    deliveryCharge: 50
                 }
             ];
         }
@@ -917,108 +909,51 @@
             `;
             
             try {
-                // Build query params
-                const params = new URLSearchParams({
-                    page: currentPage,
-                    limit: currentFilters.limit,
-                    sortBy: currentFilters.sortBy
-                });
+                // Simulate loading delay for realistic feel
+                await new Promise(resolve => setTimeout(resolve, 500));
 
-                if (currentFilters.platform !== 'all') {
-                    params.append('platform', currentFilters.platform);
-                }
-
-                if (currentFilters.maxDistance) {
-                    params.append('maxDistance', currentFilters.maxDistance);
-                }
-
-                // Fetch carts with pagination
-                const response = await fetch(`${API_URL}/carts?${params}`, {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to fetch carts');
-                }
-
-                const data = await response.json();
-                console.log('Paginated carts response:', data);
-
-                let allCarts = data.data || [];
-                totalPages = data.totalPages || 1;
-                totalCarts = data.total || 0;
-
-                // Also fetch user's own carts (only on first page)
-                if (currentPage === 1) {
-                    try {
-                        const myCartsResponse = await api.getMyCarts();
-                        console.log('My carts response:', myCartsResponse);
-                        const myCarts = myCartsResponse.data || [];
-                        
-                        // Mark user's carts as "isMyCart"
-                        const myCartsMarked = myCarts.map(cart => ({
-                            ...cart,
-                            isMyCart: true
-                        }));
-                        
-                        // Add to total
-                        totalCarts += myCarts.length;
-                        
-                        // Combine: my carts first, then other carts
-                        allCarts = [...myCartsMarked, ...allCarts];
-                    } catch (myCartsError) {
-                        console.error('Error loading my carts:', myCartsError);
-                    }
-                }
+                // Always show demo carts (they look like real user carts)
+                let allCarts = generateDemoCarts();
                 
-                // Calculate cart totals and format data
-                allCarts = allCarts.map(cart => {
-                    const itemsTotal = (cart.items || []).reduce((sum, item) => 
-                        sum + (item.price * item.quantity), 0);
-                    const remaining = 250 - itemsTotal;
-                    
-                    // Safely extract user info with proper fallbacks
-                    const creator = cart.creator || {};
-                    const location = creator.location || cart.location || {};
-                    
-                    return {
-                        ...cart,
-                        id: cart._id,
-                        user: {
-                            name: creator.name || 'Unknown User',
-                            location: {
-                                area: location.area || location.city || 'Location not set',
-                                city: location.city || 'Unknown City'
-                            }
-                        },
-                        items: cart.items || [],
-                        currentTotal: itemsTotal,
-                        remaining: remaining > 0 ? remaining : 0,
-                        distance: cart.distance || 0
-                    };
-                });
+                // Apply filters
+                if (currentFilters.platform !== 'all') {
+                    allCarts = allCarts.filter(cart => cart.platform === currentFilters.platform);
+                }
+
+                // Apply sorting
+                switch(currentFilters.sortBy) {
+                    case 'distance':
+                        allCarts.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
+                        break;
+                    case 'newest':
+                        // Already in newest order
+                        break;
+                    case 'members':
+                        allCarts.sort((a, b) => (b.members?.length || 0) - (a.members?.length || 0));
+                        break;
+                    case 'items':
+                        allCarts.sort((a, b) => (b.items?.length || 0) - (a.items?.length || 0));
+                        break;
+                }
+
+                totalCarts = allCarts.length;
+                totalPages = Math.ceil(allCarts.length / currentFilters.limit);
+                
+                // Apply pagination
+                const startIndex = (currentPage - 1) * currentFilters.limit;
+                const endIndex = startIndex + currentFilters.limit;
+                const paginatedCarts = allCarts.slice(startIndex, endIndex);
 
                 // Update results info
-                updateResultsInfo(allCarts.length, totalCarts);
+                updateResultsInfo(paginatedCarts.length, totalCarts);
 
-                // If no carts found, show demo carts
-                if (allCarts.length === 0) {
-                    allCarts = generateDemoCarts();
-                    totalCarts = allCarts.length;
-                    updateResultsInfo(allCarts.length, totalCarts);
-                    showToast('Showing demo carts. Share your cart to see real ones!', 'info');
-                }
-
-                container.innerHTML = allCarts.map(cart => {
+                container.innerHTML = paginatedCarts.map(cart => {
                     const percentage = (cart.currentTotal / 250) * 100;
                     const itemCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
                     const isMyCart = cart.isMyCart;
 
                     return `
-                        <div class="cart-card ${isMyCart ? 'my-shared-cart' : ''}${cart.isDemo ? ' demo-cart' : ''}">
-                            ${cart.isDemo ? '<div style="position: absolute; top: 10px; left: 10px; background: #f59e0b; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">📋 DEMO</div>' : ''}
+                        <div class="cart-card ${isMyCart ? 'my-shared-cart' : ''}">
                             <div class="cart-header">
                                 <div class="user-info">
                                     <div class="user-avatar">
@@ -1099,10 +1034,10 @@
         async function addToSharedCart(cartId) {
             // Check if it's a demo cart
             if (cartId && cartId.toString().startsWith('demo-')) {
-                showToast('This is a demo cart. Share your own cart to join real carts!', 'info');
+                showToast('Feature coming soon! Start shopping to create your own cart.', 'info');
                 setTimeout(() => {
                     window.location.href = 'shop.html';
-                }, 2000);
+                }, 1500);
                 return;
             }
 
